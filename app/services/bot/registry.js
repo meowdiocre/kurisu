@@ -4,6 +4,7 @@ import { pathToFileURL } from 'url';
 import { dirApp } from '@kurisu/core/utils/path';
 import logger from '@kurisu/core/utils/logger';
 import { getCommandMiddleware } from './middleware.js';
+import { commandMatchesPrefix } from './command.js';
 
 export class CommandRegistry {
   constructor() {
@@ -197,19 +198,7 @@ export class CommandRegistry {
     if (!command) return false;
 
     // Prefix verification rule
-    const hasPrefix = Boolean(msg.body.prefix);
-    const prefixRule =
-      command.prefix !== undefined
-        ? command.prefix
-        : command.withoutPrefix
-          ? false
-          : true;
-
-    if (prefixRule === true && !hasPrefix) {
-      return false;
-    }
-
-    if (prefixRule === false && hasPrefix) {
+    if (!commandMatchesPrefix(msg, command)) {
       return false;
     }
 

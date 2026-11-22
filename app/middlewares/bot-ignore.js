@@ -1,5 +1,6 @@
 import { parseMessage } from '#app/services/bot/message.js';
 import { getCommand } from '#app/services/bot/registry.js';
+import { commandMatchesPrefix } from '#app/services/bot/command.js';
 
 /**
  * Filter unwanted messages (broadcasts, newsletters, system stubs)
@@ -40,5 +41,7 @@ export default async function ignoreMiddleware(payload, ctx) {
   }
 
   ctx.msg = parsed;
-  ctx.command = await getCommand(parsed.body?.commandWithoutPrefix);
+  const command = await getCommand(parsed.body?.commandWithoutPrefix);
+  ctx.command =
+    command && commandMatchesPrefix(parsed, command) ? command : undefined;
 }

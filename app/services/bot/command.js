@@ -88,6 +88,27 @@ export function isCommand(msg, options, prefixMode = true) {
 }
 
 /**
+ * Check whether a matched command satisfies its prefix rule for this message.
+ *
+ * @param {any} msg - ParsedMessage
+ * @param {object} command - Command definition
+ * @returns {boolean}
+ */
+export function commandMatchesPrefix(msg, command) {
+  const hasPrefix = Boolean(msg?.body?.prefix);
+  const rule =
+    command?.prefix !== undefined
+      ? command.prefix
+      : command?.withoutPrefix
+        ? false
+        : true;
+
+  if (rule === true) return hasPrefix;
+  if (rule === false) return !hasPrefix;
+  return true;
+}
+
+/**
  * Validate a command against message content, prefix rule, and permission guards
  *
  * @param {any} msg - ParsedMessage object from parseMessage()

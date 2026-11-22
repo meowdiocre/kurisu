@@ -40,15 +40,24 @@ export function normalizeCallSeconds(value, fallback = DEFAULT_CALL_SECONDS) {
 export function resolveCallTarget(msg, input = '') {
   /** @type {{ jid: string, bare: string }[]} */
   const candidates = [];
+  const botBares = new Set(
+    [msg?.bot?.id, msg?.bot?.pn, msg?.bot?.lid]
+      .filter(Boolean)
+      .map(toBareUser)
+  );
   const add = (jid, kind) => {
     const bare = toBareUser(jid);
     if (!bare || bare.length < 7) return;
+    if (botBares.has(bare)) return;
     candidates.push({ jid: `${bare}@${kind}`, bare });
   };
 
-  const manual = String(input || '').trim();
+  const manualRaw = String(input || '').trim();
+  const wantsSelf = /^(aku|saya|gue|gw|me|sendiri)$/i.test(manualRaw);
+  const manual = wantsSelf ? '' : manualRaw;
   const isMentionToken = manual.startsWith('@');
   const manualDigits = !isMentionToken ? cleanDigits(manual) : '';
+  const sender = msg?.sender;
 
   if (manual && !isMentionToken) {
     if (isLidJid(manual)) {
@@ -62,6 +71,11 @@ export function resolveCallTarget(msg, input = '') {
     add(mention, isLidJid(mention) ? 'lid' : 's.whatsapp.net');
   }
 
+  if (wantsSelf && sender) {
+    if (sender.pn) add(sender.pn, 's.whatsapp.net');
+    if (sender.lid) add(sender.lid, 'lid');
+  }
+
   const quoted = msg?.quoted?.sender;
   if (quoted) {
     if (quoted.pn) add(quoted.pn, 's.whatsapp.net');
@@ -69,6 +83,11 @@ export function resolveCallTarget(msg, input = '') {
     if (quoted.id) {
       add(quoted.id, isLidJid(quoted.id) ? 'lid' : 's.whatsapp.net');
     }
+  }
+
+  if (!manual && candidates.length === 0 && sender) {
+    if (sender.pn) add(sender.pn, 's.whatsapp.net');
+    if (sender.lid) add(sender.lid, 'lid');
   }
 
   if (manualDigits) {
