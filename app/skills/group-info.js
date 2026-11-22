@@ -46,18 +46,18 @@ export default defineSkill({
     });
 
     const lines = [
-      `Group: ${metadata?.subject || 'unknown'}`,
-      `Members: ${participants.length}`,
-      `Admins: ${
+      `Grup: ${metadata?.subject || 'tidak diketahui'}`,
+      `Jumlah member: ${participants.length}`,
+      `Admin: ${
         admins.length > 0
           ? admins.slice(0, 10).map(participantLabel).join(', ')
-          : 'none'
+          : 'tidak ada'
       }`,
     ];
 
     const description = String(metadata?.desc || '').trim();
     if (description) {
-      lines.push(`Description: ${description.slice(0, 200)}`);
+      lines.push(`Deskripsi: ${description.slice(0, 200)}`);
     }
 
     if (authority) {

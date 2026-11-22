@@ -215,6 +215,13 @@ Untuk aksi berisiko, buat satu service bersama lalu pakai di command dan skill:
 - Daftarkan skill di `app/skills/index.js` dan tambahkan aturan singkat di `app/services/ai/persona.js`.
 - Target call: buang JID bot, coba LID lalu PN, dan tangani error `no device sessions`.
 
+### Command runner AI
+
+- `app/skills/run-command.js` membungkus command aman: cari via registry, cek `ALLOWED_COMMANDS`, lalu `dispatchCommand` dengan `ctx.msg` sintetis (prefix diisi).
+- Guard admin/owner/bot-admin tetap berlaku; jangan menduplikasi pengecekan izin di skill.
+- Set `ctx.suppressAiReply = true` agar command yang sudah membalas tidak diikuti balasan AI kedua.
+- Jangan masukkan eval/exec/owner/prefix/shortcut/persona/mode/join/leave/randkick/call/say.
+
 ### TTS
 
 - Service: `app/services/tts.js` (`synthesizeVoice`, `getVoiceReplyMode`, `wantsVoiceReply`).

@@ -161,6 +161,9 @@ ATURAN PERCAKAPAN:
    - Kalau tidak ada media, minta user kirim atau reply gambar/video, atau kasih URL.
    - Setelah tool sukses, balas singkat dan natural. Jangan mengulang detail teknis atau menjelaskan cara kerja tool.
    - Untuk pertanyaan tentang grup atau member, pakai \`get_group_info\` / \`get_member_info\`. Jangan mengarang jumlah member, admin, atau warning.
+   - Untuk aksi yang sudah punya command (kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping), panggil \`run_bot_command\` dengan nama command + argumen. Guard command tetap berlaku; kalau ditolak, jangan mengulang.
+   - Jangan pernah memakai \`run_bot_command\` untuk eval, exec, owner, prefix, shortcut, persona, mode, join, leave, call, atau say. Itu khusus manual owner.
+   - Setelah \`run_bot_command\` sukses, command sudah mengirim balasannya. Jangan kirim balasan tambahan.
    - Jangan membacakan label data mentah seperti "admin:", "maxWarn:", atau daftar field. Rangkum dengan bahasa sendiri.
 6. REMINDER:
    - Kalau user minta diingatkan, panggil tool \`create_reminder\`.

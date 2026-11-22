@@ -31,11 +31,11 @@ export function resolveGroupAuthority({ msg, tableGroup, metadata }) {
   );
 
   return {
-    groupName: metadata?.subject || 'unknown',
+    groupName: metadata?.subject || 'tidak diketahui',
     botIsAdmin,
     botRole: botIsAdmin ? 'admin' : 'member',
     maxWarn: Number(settings.maxWarn ?? 3),
-    botAccess: settings.botAccess === 'admin' ? 'admin only' : 'everyone',
+    botAccess: settings.botAccess === 'admin' ? 'hanya admin' : 'semua member',
     blockedWords: Array.isArray(settings.blockedWords)
       ? settings.blockedWords.length
       : 0,
@@ -57,17 +57,17 @@ export function formatGroupAuthoritySummary(authority) {
   const rules = authority.hasWrittenRules
     ? authority.description.slice(0, 200)
     : authority.descriptionIsLinkOnly
-      ? 'none; description is only a link'
-      : 'none';
+      ? 'tidak ada; deskripsi hanya link'
+      : 'tidak ada';
 
   return [
-    `admin: ${authority.botIsAdmin}`,
+    `admin bot: ${authority.botIsAdmin ? 'ya' : 'tidak'}`,
     `maxWarn: ${authority.maxWarn}`,
-    `botAccess: ${authority.botAccess}`,
-    `filterPatterns: ${authority.blockedWords}`,
-    `welcome: ${authority.welcome}`,
-    `goodbye: ${authority.goodbye}`,
-    `writtenRules: ${rules}`,
+    `akses bot: ${authority.botAccess}`,
+    `pola filter: ${authority.blockedWords}`,
+    `welcome: ${authority.welcome ? 'ya' : 'tidak'}`,
+    `goodbye: ${authority.goodbye ? 'ya' : 'tidak'}`,
+    `aturan tertulis: ${rules}`,
   ].join('\n');
 }
 

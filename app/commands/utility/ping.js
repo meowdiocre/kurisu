@@ -41,7 +41,7 @@ export default defineCommand({
 
     // Server specs
     const cpus = os.cpus() || [];
-    const cpuModel = cpus[0]?.model?.trim() || 'Unknown CPU';
+    const cpuModel = cpus[0]?.model?.trim() || 'CPU tidak diketahui';
     const cpuCores = cpus.length;
 
     const totalMem = os.totalmem();
@@ -60,15 +60,15 @@ export default defineCommand({
       networkLatency !== null ? `${networkLatency} ms` : `${processLatency} ms`;
 
     const lines = [
-      `• *Speed:* \`${latencyText}\``,
-      `• *Uptime:* \`${botUptime}\``,
+      `• *Kecepatan:* \`${latencyText}\``,
+      `• *Waktu aktif:* \`${botUptime}\``,
       '',
-      `｢ *SERVER INFO* ｣`,
-      `• *CPU:* ${cpuModel} (${cpuCores} cores)`,
-      `• *RAM System:* ${formatFileSize(usedMem)} / ${formatFileSize(totalMem)} (${memPercentage}%)`,
+      `｢ *INFO SERVER* ｣`,
+      `• *CPU:* ${cpuModel} (${cpuCores} core)`,
+      `• *RAM Sistem:* ${formatFileSize(usedMem)} / ${formatFileSize(totalMem)} (${memPercentage}%)`,
       `• *RAM Bot:* ${formatFileSize(procMem)}`,
       `• *OS:* ${osPlatform}`,
-      `• *OS Uptime:* ${osUptime}`,
+      `• *Aktif OS:* ${osUptime}`,
       `• *Node.js:* ${nodeVersion}`,
     ];
 

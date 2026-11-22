@@ -56,12 +56,12 @@ export default defineCommand({
           zone: 'utc',
         });
         if (last && last.isValid) {
-          const relative = last.toRelative({ locale: 'en' });
+          const relative = last.toRelative({ locale: 'id' }) || last.toRelative({ locale: 'en' });
           lastSeenText = `${relative}`;
         }
       }
 
-      return `${rank}. *${displayName}*\n   • *Score:* ${member.score ?? 0}\n   • *Last Interaction:* ${lastSeenText}`;
+      return `${rank}. *${displayName}*\n   • *Skor:* ${member.score ?? 0}\n   • *Terakhir interaksi:* ${lastSeenText}`;
     });
 
     const text = [`*TOP 10*`, '', items.join('\n\n')].join('\n');

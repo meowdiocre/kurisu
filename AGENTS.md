@@ -289,3 +289,14 @@ npm run docs:commands
 - Untuk perubahan command/menu, verifikasi dengan memuat registry dan memanggil `formatMenuText` (lihat `scripts/command-docs.js`).
 - Untuk perubahan perilaku bot, uji jalur nyata (atau stub client seperti saat menguji `call_number`/TTS) sebelum deploy.
 - Setelah `git pull` di server, jalankan `systemctl restart kurisu` dan cek log `ERROR`/`WARN`.
+
+### 8.5 Command runner untuk AI
+
+`app/skills/run-command.js` mengekspos command aman ke AI tanpa menduplikasi logika:
+
+- `run_bot_command({ command, args })` mencari command lewat registry, memakai `ALLOWED_COMMANDS`, lalu memanggil `dispatchCommand` dengan `ctx.msg` sintetis.
+- Guard command tetap berjalan (admin/owner/bot-admin), jadi AI tidak bisa melewati izin.
+- Skill menandai `ctx.suppressAiReply = true`; command sudah membalas, jadi AI tidak boleh mengirim balasan tambahan.
+- Whitelist: kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping.
+- Jangan pernah menambahkan `eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, `call`, atau `say` ke whitelist AI. Itu manual owner.
+- Command baru yang aman: tambahkan nama kanoniknya ke `ALLOWED_COMMANDS` dan sebutkan di deskripsi tool/persona.

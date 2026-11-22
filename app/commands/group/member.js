@@ -203,7 +203,7 @@ export default defineCommand({
     const isSelf = !msg.quoted && !msg.body?.mentionedJid?.[0] && !hasTargetArg;
 
     let member = isSelf ? tableGroupMember : null;
-    let nameDisplay = member?.pushname || msg.sender?.name || 'Unknown';
+    let nameDisplay = member?.pushname || msg.sender?.name || 'Tidak diketahui';
 
     if (!member) {
       const targetIdentities = resolveTarget(msg, hasTargetArg ? args[0] : '', {
@@ -211,7 +211,7 @@ export default defineCommand({
       });
 
       member = await findGroupMember(tableGroup.id, targetIdentities);
-      nameDisplay = member?.pushname || targetIdentities.name || 'Unknown';
+      nameDisplay = member?.pushname || targetIdentities.name || 'Tidak diketahui';
     }
 
     if (!member) {
@@ -227,22 +227,22 @@ export default defineCommand({
     const lastActiveDisplay = formatRelativeDate(member.last_interacted_at);
 
     const lines = [
-      '｢ *member information* ｣',
-      `• Name: *${nameDisplay}*`,
-      `• Phone: ${pnDisplay}`,
+      '｢ *informasi member* ｣',
+      `• Nama: *${nameDisplay}*`,
+      `• Nomor: ${pnDisplay}`,
       `• LID: ${lidDisplay}`,
-      `• Database ID: \`#${member.id}\``,
+      `• ID database: \`#${member.id}\``,
       '',
-      '*Statistics:*',
-      `• Score: *${scoreDisplay}* poin`,
-      `• Warnings: *${member.warnings || 0}* / ${maxWarn}`,
-      `• Last Active: _${lastActiveDisplay}_`,
+      '*Statistik:*',
+      `• Skor: *${scoreDisplay}* poin`,
+      `• Peringatan: *${member.warnings || 0}* / ${maxWarn}`,
+      `• Terakhir aktif: _${lastActiveDisplay}_`,
     ];
 
     if (isAdmin) {
       lines.push(
         '',
-        '*Admin Action (Reply chat target):*',
+        '*Aksi admin (reply chat target):*',
         `• \`${cmd} set score <angka>\``,
         `• \`${cmd} set warnings <angka>\``,
         `• \`${cmd} set name <nama>\``,

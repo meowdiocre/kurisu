@@ -139,17 +139,17 @@ export default defineSkill({
     }
 
     if (!member) {
-      return `No stored record was found for ${targetLabel}.`;
+      return `Tidak ada data tersimpan untuk ${targetLabel}.`;
     }
 
     const maxWarn = Number(tableGroup?.settings?.maxWarn ?? 3);
     const name = member.pushname || targetLabel;
     return [
-      `Member: ${name}`,
-      `Warnings: ${Number(member.warnings || 0)}/${maxWarn}`,
-      `Score: ${Number(member.score || 0)}`,
-      `Last warned: ${relativeTime(member.last_warned_at)}`,
-      `Last active: ${relativeTime(member.last_interacted_at)}`,
+      `Nama: ${name}`,
+      `Peringatan: ${Number(member.warnings || 0)}/${maxWarn}`,
+      `Skor: ${Number(member.score || 0)}`,
+      `Terakhir diperingatkan: ${relativeTime(member.last_warned_at)}`,
+      `Terakhir aktif: ${relativeTime(member.last_interacted_at)}`,
     ].join('\n');
   },
 });

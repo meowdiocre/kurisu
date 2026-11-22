@@ -251,6 +251,12 @@ export default async function botAiChatMiddleware(payload, ctx) {
       );
     }
 
+    // A skill may have executed a command that already replied to the chat.
+    if (ctx.suppressAiReply) {
+      if (typeof ctx.stop === 'function') ctx.stop();
+      return;
+    }
+
     if (!replyContent) {
       logger.warn('[AI_CHAT]', `Empty AI response in ${msg.chat}`);
     } else if (isNoReply(replyContent)) {

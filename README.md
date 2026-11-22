@@ -86,10 +86,13 @@ Command owner yang sering dipakai:
 Endpoint AI harus OpenAI-compatible dan mendukung tool calling. Skill yang terdaftar:
 
 - `create_sticker`, `download_media`
+- `run_bot_command`: menjalankan command aman dengan guard yang sama (kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping)
 - `call_number` (owner)
 - `create_reminder`, `list_reminders`, `cancel_reminder`
 - `get_group_info`, `get_member_info`
 - `save_note`, `get_note`, `list_notes`, `delete_note`
+
+Command berisiko seperti `eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, `call`, dan `say` sengaja **tidak** diekspos ke AI; jalankan manual oleh owner. Semua aksi lewat `run_bot_command` tetap melewati guard admin/owner dan bot-admin yang sama seperti command manual.
 
 Di grup, AI hanya merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua pesan non-command diproses.
 
