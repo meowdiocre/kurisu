@@ -291,22 +291,27 @@ export default async function botAiChatMiddleware(payload, ctx) {
       // Reply back to WhatsApp. In voice mode, send a PTT voice note and fall
       // back to text when synthesis or the audio upload fails.
       const voiceMode = getVoiceReplyMode();
+
+      const sendText = async () => {
+        try {
+          await msg.reply(finalReply);
+        } catch (sendErr) {
+          logger.warn(
+            '[AI_CHAT]',
+            `Quoted reply failed in ${msg.chat}; sending without quote: ${sendErr.message}`
+          );
+          await msg.send(finalReply);
+        }
+      };
+
+      if (voiceMode === 'both') {
+        await sendText();
+      }
+
       const voice =
         voiceMode === 'off' ? null : await synthesizeVoice(finalReply);
 
       if (voice) {
-        if (voiceMode === 'both') {
-          try {
-            await msg.reply(finalReply);
-          } catch (sendErr) {
-            logger.warn(
-              '[AI_CHAT]',
-              `Quoted reply failed in ${msg.chat}; sending without quote: ${sendErr.message}`
-            );
-            await msg.send(finalReply);
-          }
-        }
-
         try {
           await client.message.send(
             msg.chat,
@@ -324,22 +329,10 @@ export default async function botAiChatMiddleware(payload, ctx) {
             '[AI_CHAT]',
             `Voice reply failed in ${msg.chat}; sending text: ${voiceErr.message}`
           );
-          try {
-            await msg.reply(finalReply);
-          } catch {
-            await msg.send(finalReply);
-          }
+          if (voiceMode !== 'both') await sendText();
         }
-      } else {
-        try {
-          await msg.reply(finalReply);
-        } catch (sendErr) {
-          logger.warn(
-            '[AI_CHAT]',
-            `Quoted reply failed in ${msg.chat}; sending without quote: ${sendErr.message}`
-          );
-          await msg.send(finalReply);
-        }
+      } else if (voiceMode !== 'both') {
+        await sendText();
       }
 
       // Stop event propagation so commands/further handlers do not trigger
