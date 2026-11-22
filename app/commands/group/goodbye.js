@@ -5,7 +5,8 @@ export default defineCommand({
   name: 'goodbye',
   aliases: ['goodbye'],
   category: 'group',
-  description: 'Toggle goodbye farewell message for departing group members',
+  description: 'Aktif/nonaktifkan pesan perpisahan member keluar',
+  usage: 'goodbye [on|off]',
   middlewares: ['group', 'sender:admin,superAdmin,isOwner'],
 
   async execute(payload, ctx) {

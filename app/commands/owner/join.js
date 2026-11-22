@@ -8,7 +8,9 @@ export default defineCommand({
   name: 'join',
   aliases: ['join', 'masuk'],
   category: 'owner',
-  description: 'Join a WhatsApp group via invite link or code (owner only)',
+  description: 'Masuk grup WhatsApp lewat link undangan atau kode (owner)',
+  usage: 'join <link|kode>',
+  examples: ['join https://chat.whatsapp.com/...'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {
@@ -28,7 +30,7 @@ export default defineCommand({
       const inviteCode = match[1];
 
       if (!client?.group?.joinGroupViaInvite) {
-        return await msg.reply('Group coordinator is not available.');
+        return await msg.reply('Fitur grup tidak tersedia.');
       }
 
       // Check invite info first to get group metadata & membership approval mode
@@ -50,7 +52,7 @@ export default defineCommand({
           `Bot successfully joined group ${result?.jid || inviteCode} via invite link.`
         );
 
-        return await msg.reply(`Successfully joined *${groupSubject}*!`);
+        return await msg.reply(`Berhasil masuk *${groupSubject}*!`);
       } catch (joinErr) {
         // If join failed because group requires admin approval or response was empty <iq>
         if (joinErr.message?.includes('expected <group> node in response')) {
@@ -70,7 +72,7 @@ export default defineCommand({
         '[OWNER]',
         `Failed to join group via invite: ${err.message}`
       );
-      await msg.reply(`Failed to join group: ${err.message}`);
+      await msg.reply(`Gagal masuk grup: ${err.message}`);
     }
   },
 });

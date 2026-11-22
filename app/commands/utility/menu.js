@@ -4,7 +4,10 @@ export default defineCommand({
   name: 'menu',
   aliases: ['menu', 'help'],
   category: 'utility',
-  description: 'Display bot menu and available commands',
+  description: 'Tampilkan daftar fitur, filter kategori, atau detail satu command',
+  usage: 'menu [kategori|command <nama>]',
+  examples: ['menu owner', 'menu call', 'menu command owner'],
+  middlewares: [],
 
   async execute(payload, ctx) {
     const msg = ctx.msg;
@@ -13,17 +16,17 @@ export default defineCommand({
     try {
       const prefix = msg.body?.prefix || '.';
       const userName = msg.sender?.name || 'User';
-      const groupFilter = msg.body?.args?.[0] || '';
+      const filter = (msg.body?.args || []).join(' ').trim();
 
       const text = await formatMenuText({
         prefix,
         userName,
-        groupFilter,
+        groupFilter: filter,
       });
 
       await msg.reply(text);
     } catch (err) {
-      console.error('[MENU] Failed to generate or send menu:', err);
+      console.error('[MENU] Gagal membuat atau mengirim menu:', err);
     }
   },
 });

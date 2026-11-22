@@ -9,7 +9,9 @@ export default defineCommand({
   name: 'warn',
   aliases: ['warn'],
   category: 'group',
-  description: 'Warn group members',
+  description: 'Beri peringatan ke member grup',
+  usage: 'warn <@tag|reply> [alasan]',
+  examples: ['warn @member', '(reply) warn spam'],
   middlewares: ['group', 'sender:admin,superAdmin', 'bot:admin'],
 
   async execute(payload, ctx) {

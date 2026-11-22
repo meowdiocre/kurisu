@@ -5,8 +5,9 @@ export default defineCommand({
   name: 'gmode',
   aliases: ['gmode'],
   category: 'group',
-  description:
-    'Configure bot usage permission in the group (everyone vs admin)',
+  description: 'Atur siapa yang boleh memakai bot di grup (semua vs admin)',
+  usage: 'gmode <everyone|admin>',
+  examples: ['gmode admin', 'gmode everyone'],
   middlewares: ['group', 'sender:admin,superAdmin,isOwner'],
 
   async execute(payload, ctx) {

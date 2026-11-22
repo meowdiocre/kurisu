@@ -5,7 +5,8 @@ export default defineCommand({
   name: 'welcome',
   aliases: ['welcome'],
   category: 'group',
-  description: 'Toggle welcome greeting message for new group members',
+  description: 'Aktif/nonaktifkan pesan sambutan member baru',
+  usage: 'welcome [on|off]',
   middlewares: ['group', 'sender:admin,superAdmin,isOwner'],
 
   async execute(payload, ctx) {

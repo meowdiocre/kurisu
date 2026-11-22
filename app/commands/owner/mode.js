@@ -5,7 +5,9 @@ export default defineCommand({
   name: 'mode',
   aliases: ['mode'],
   category: 'owner',
-  description: 'Manage bot operational mode (public, self)',
+  description: 'Atur mode operasional bot (public, self)',
+  usage: 'mode <public|self>',
+  examples: ['mode self', 'mode public'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {

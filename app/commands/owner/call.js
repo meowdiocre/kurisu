@@ -22,7 +22,9 @@ export default defineCommand({
   name: 'call',
   aliases: ['call', 'miscall', 'telepon', 'telfon'],
   category: 'owner',
-  description: 'Ring a WhatsApp number for N seconds (owner only)',
+  description: 'Telepon nomor WhatsApp selama N detik (owner)',
+  usage: 'call <nomor|@tag|reply> [detik]',
+  examples: ['call 628123456789 5', 'call @user 10', 'call aku 30'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {

@@ -200,3 +200,33 @@ export interface CustomContextData {
 ```
 
 TypeScript and IDE Language Servers will immediately provide full type autocompletion across all event handlers, middlewares, and commands.
+
+---
+
+## 7. Fitur Baru: Call, TTS, Menu, Docs
+
+### Owner command + AI skill
+
+Untuk aksi berisiko, buat satu service bersama lalu pakai di command dan skill:
+
+- Service: `app/services/call.js` (`resolveCallTargets`, `placeMiscall`, `describeCallError`).
+- Command: `app/commands/owner/call.js` dengan `middlewares: ['sender:isOwner']`.
+- Skill: `app/skills/call-number.js`, cek `msg.permissions.sender.isOwner` di `execute`.
+- Daftarkan skill di `app/skills/index.js` dan tambahkan aturan singkat di `app/services/ai/persona.js`.
+- Target call: buang JID bot, coba LID lalu PN, dan tangani error `no device sessions`.
+
+### TTS
+
+- Service: `app/services/tts.js` (`synthesizeVoice`, `getVoiceReplyMode`, `wantsVoiceReply`).
+- Provider: `edge`, `google`, `elevenlabs`; fallback otomatis ke Edge.
+- `TTS_REPLY_MODE=auto` hanya mengirim voice note saat user meminta suara.
+- Selalu kirim `{ type: 'audio', media, mimetype, ptt: true, seconds }`.
+- Command manual: `.say [provider] <teks>` dan `.say test`.
+
+### Menu & docs
+
+- Metadata command wajib `description` Bahasa Indonesia; tambahkan `usage`/`examples` tanpa prefix untuk command berargumen.
+- Command internal gunakan `hidden: true`.
+- Menu otomatis dari registry (`app/services/bot/menu.js`), mendukung `menu <kategori>` dan `menu <command>`.
+- Regenerate docs setelah mengubah command: `npm run docs:commands`.
+- Bahasa: user-facing Indonesia; kode/log/komentar teknis Inggris.

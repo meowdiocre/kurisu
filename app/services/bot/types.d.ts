@@ -52,6 +52,22 @@ export interface CommandDefinition {
   readonly middlewares?: string[]
 
   /**
+   * Short usage pattern without the configured prefix.
+   * Example: `call <nomor|@tag|reply> [detik]`
+   */
+  readonly usage?: string
+
+  /**
+   * Optional example command lines without the configured prefix.
+   */
+  readonly examples?: string[]
+
+  /**
+   * Hide a command from menus and generated docs (debug/internal commands).
+   */
+  readonly hidden?: boolean
+
+  /**
    * Prefix requirement rule:
    * - `true`: must start with configured prefix (default)
    * - `false`: must NOT have prefix (e.g. '>', '$')

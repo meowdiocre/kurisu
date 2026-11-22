@@ -9,20 +9,21 @@ Dokumen ini adalah pedoman arsitektur dan standar rekayasa software untuk bot **
 > 1. **Panggilan ke Core WAJIB Melalui `@kurisu/core`:**
 >    - Jangan pernah menggunakan alias `#` (`#services/...`, `#utils/...`, dll) ataupun path relatif antar-layer (`../../core/...`) untuk modul core.
 >    - Semua berkas (baik di dalam `app/`, root `kurisu.js`, maupun antar-berkas di dalam `core/`) **HARUS SELALU** mengimpor dari `@kurisu/core/...`.
-> 2. **Pesan Log, Error, dan Deskripsi WAJIB Bahasa Inggris (100% English):**
->    - Seluruh logging (`logger.info`, `logger.warn`, `logger.error`, `logger.debug`), exception error (`throw new Error(...)`), dan atribut `description` modul/command **HARUS menggunakan Bahasa Inggris baku**. DILARANG mencampurkan Bahasa Indonesia pada pesan teknis atau log terminal.
+> 2. **Log, Error Teknis, dan Komentar WAJIB Bahasa Inggris; Teks User-Facing WAJIB Bahasa Indonesia:**
+>    - Seluruh logging (`logger.info`, `logger.warn`, `logger.error`, `logger.debug`), exception error (`throw new Error(...)`), komentar teknis, dan identifier kode **HARUS Bahasa Inggris**.
+>    - Teks yang dilihat pengguna (balasan command, `description` command/menu, guard, error yang dikirim ke WhatsApp) dan dokumentasi **WAJIB Bahasa Indonesia**.
 > 3. **Batasan Mutlak Direktori `core/` (Engine Core Boundary):**
 >    - Direktori `core/` adalah engine framework internal murni (_agnostic event-driven engine_). **DILARANG KERAS** membuat berkas baru atau mengubah kode di dalam `core/` kecuali jika diperintahkan secara eksplisit oleh pengguna. Seluruh logika aplikasi, bot commands, message gateway, middleware, helper, dan service aplikasi harus diletakkan di dalam folder `app/`.
 > 4. **Event Handlers Terorganisir (`app/events/<eventName>/*.js`):**
->    - `app/events/` diorganisir per subfolder event WhatsApp (contoh: `app/events/message/index.js`, `app/events/group/cleanup.js`, `app/events/group/sync.js`).
->    - `app/events/message/index.js` bertindak sebagai message gateway yang memfilter stub/broadcast, mem-parsing `ctx.msg`, menjalankan middleware event, dan mendispatch ke command registry.
+>    - `app/events/` diorganisir per subfolder event WhatsApp (contoh: `app/events/message/commands.js`, `app/events/group/cleanup-database.js`, `app/events/group/sync-cache.js`).
+>    - `app/events/message/commands.js` bertindak sebagai message gateway yang memfilter stub/broadcast, mem-parsing `ctx.msg`, menjalankan middleware event, dan mendispatch ke command registry.
 >    - Middleware event didaftarkan secara eksplisit dan scoped di `app/starts/kernel.js` (`eventMiddlewares.message`, dll).
 > 5. **Command Registry & Parameterized Middleware Guards (`app/services/bot`):**
 >    - Seluruh fitur bot diletakkan di `app/commands/<category>/<name>.js` menggunakan `defineCommand` dari `#app/services/bot`.
 >    - Guard standar (`'group'`, `'private'`, `'sender:<roles>'`, `'bot:<roles>'`) disediakan bawaan oleh `#app/services/bot`. Tidak perlu mendefinisikan file middleware di `app/middlewares/` untuk guard standar ini!
 >    - Validasi hak akses **WAJIB** menggunakan parameterized middlewares di properti `middlewares: [...]` (contoh: `['group', 'sender:admin,superAdmin,isOwner', 'bot:admin']`).
 > 6. **Pesan Penolakan Ringkas (Concise Guard Messages):**
->    - Jika terjadi kegagalan validasi hak akses, gunakan pesan penolakan yang ultra-ringkas dan to-the-point (`Only Owner!`, `Only Admin!`, `Only in Group!`, `Bot is not Admin!`). Jangan membanjiri chat WhatsApp dengan pesan penolakan yang panjang dan bertele-tele.
+>    - Jika terjadi kegagalan validasi hak akses, gunakan pesan penolakan yang ultra-ringkas dan to-the-point (`Khusus owner!`, `Khusus admin!`, `Hanya bisa di grup!`, `Bot bukan admin!`). Jangan membanjiri chat WhatsApp dengan pesan penolakan yang panjang dan bertele-tele.
 > 7. **DILARANG Auto-Commit Git & DILARANG Suggestion Commit Otomatis:**
 >    - AI Agent **DILARANG KERAS** menjalankan perintah `git commit` atau membuat commit secara otomatis (_"biar dev-nya aja yang commit"_).
 >    - AI Agent juga **DILARANG** menyertakan rekomendasi/suggestion pesan commit (_suggested Conventional Commit message_) di akhir respons kecuali jika diminta secara eksplisit oleh developer.
@@ -52,9 +53,9 @@ Dokumen ini adalah pedoman arsitektur dan standar rekayasa software untuk bot **
 1. **Separation of Concerns:**
    - **`core/` (Agnostic Framework Engine):** Hanya menangani koneksi WhatsApp (Zapo), event bus, database (Knex), cache (LRU), environment, modular loader, dan CLI. Bersih dari logika bot perintah teks.
    - **`app/services/bot/` (Bot Engine & Utilities):** Message parser (`parseMessage`), command validator, command registry dengan instant $O(1)$ dispatching, built-in guards (`sender`, `bot`, `group`, `private`), dan formatter menu.
-   - **`app/events/message/index.js` (Message Gateway):** Menerima event native `message`, memfilter stub/broadcast, menyiapkan `ctx.msg`, menjalankan middleware event, lalu mendispatch ke command registry.
+   - **`app/events/message/commands.js` (Message Gateway):** Menerima event native `message`, memfilter stub/broadcast, menyiapkan `ctx.msg`, menjalankan middleware event, lalu mendispatch ke command registry.
    - **`app/events/<eventName>/*.js` (Custom Events):** Handler event aplikasi untuk event WhatsApp lainnya (misal sinkronisasi grup).
-   - **`app/middlewares/*.js` (App Middlewares):** Middleware logika bisnis spesifik userland (contoh: `bot-table.js`, `group.js`, `group-mode.js`, `group-score.js`).
+   - **`app/middlewares/*.js` (App Middlewares):** Middleware logika bisnis spesifik userland (contoh: `bot-table.js`, `group-table.js`, `group-mode.js`, `group-score.js`).
    - **`app/commands/<category>/*.js` (Commands):** Logika bisnis murni command bot.
 2. **Type Safety & Context Extensibility:**
    - Seluruh payload memiliki tipe yang kuat dan scoped.
@@ -76,9 +77,10 @@ kurisu/
 │   │   ├── index.js              # AdonisJS-style application hooks (app.use, app.server, app.terminal)
 │   │   └── kernel.js             # Userland event middlewares & custom command middleware aliases
 │   ├── middlewares/              # Userland middlewares
-│   │   ├── bot-table.js          # Inject ctx.tableBot from database/cache
-│   │   ├── bot-ignore.js         # Filter stubs, broadcasts, & parse ctx.msg
-│   │   ├── group.js              # Group & member records (ctx.tableGroup, ctx.tableGroupMember)
+│   │   ├── bot-table.js          # Inject ctx.tableBot dari database/cache
+│   │   ├── bot-ignore.js         # Filter stub/broadcast, parse ctx.msg, set ctx.command
+│   │   ├── bot-mode.js           # Mode public/self
+│   │   ├── group-table.js        # Group & member records (ctx.tableGroup, ctx.tableGroupMember)
 │   │   ├── group-mode.js         # Group botAccess policy guard ('everyone' vs 'admin')
 │   │   ├── group-score.js        # Debounced group member interaction scoring
 │   │   └── bot-guards.js         # Command guards (sender, bot, group, private)
@@ -87,18 +89,29 @@ kurisu/
 │   │   │   └── commands.js       # WhatsApp message command dispatcher
 │   │   └── group/
 │   │       ├── cleanup-database.js Purge records on bot departure or member kick
-│   │       └── sync-cache.js     Invalidate and refresh group metadata cache
+│   │       └── sync-cache.js     # Invalidate and refresh group metadata cache
 │   ├── commands/                 # Declarative Bot Commands
-│   │   ├── group/                # Group management commands (kick, warn, randkick, board, botaccess)
-│   │   ├── owner/                # Owner commands (eval, exec, leave, owner)
-│   │   └── utility/              # Utility commands (ping, menu)
-│   ├── services/                 # Shared business logic & bot engine
-│   │   ├── bot/                  # Bot service (command registry, message parser, menu builder, runner)
-│   │   └── owner.js              # Owner management service
+│   │   ├── downloader/           # Media downloader (dl)
+│   │   ├── group/                # Group management (kick, warn, blockword, summary, dll)
+│   │   ├── maker/                # Sticker tools (sticker, take, toimg)
+│   │   ├── owner/                # Owner tools (eval, exec, call, say, owner, prefix, dll)
+│   │   └── utility/              # Utility (menu, ping, note, reminder)
+│   ├── services/
+│   │   ├── ai/                   # Client, persona, prompt builder, persona modes
+│   │   ├── bot/                  # Command registry, message parser, menu builder, dispatcher
+│   │   ├── call.js               # Resolusi target + miscall (LID/PN)
+│   │   ├── tts.js                # Edge/Google/ElevenLabs TTS + cache
+│   │   ├── sticker.js            # Konversi media ke stiker
+│   │   ├── note.js               # Catatan pribadi/grup
+│   │   └── reminder.js           # Reminder + miscall terjadwal
+│   ├── skills/                   # AI tool/skill definitions (sticker, reminder, call, notes, dll)
 │   └── database/                 # Migrations & Seeds
+├── docs/                         # Dokumentasi (COMMANDS.md, DEPLOYMENT.md)
+├── scripts/                      # Utility scripts (command-docs.js)
 ├── storage/                      # SQLite DB, session WhatsApp, temp storage
 ├── kurisu.js                     # Centralized Kurisu CLI runner
-└── AGENTS.md                     # This document
+├── README.md                     # Panduan proyek
+└── AGENTS.md                     # Dokumen ini
 ```
 
 ---
@@ -115,7 +128,7 @@ kurisu/
    - Gunakan Subpath Import `#app/...`.
    - ✅ `import { defineCommand } from '#app/services/bot/index.js';`
    - ✅ `import { getGroupMetadata, clearGroupMetadataCache } from '#app/services/bot/index.js';`
-   - ✅ `import { checkOwnerAccess } from '#app/services/owner.js';`
+   - ✅ `import { checkIsOwner } from '#app/services/bot/index.js';`
 
 ---
 
@@ -129,9 +142,15 @@ export const eventMiddlewares = {
   message: [
     () => import('#app/middlewares/bot-table.js'),
     () => import('#app/middlewares/bot-ignore.js'),
-    () => import('#app/middlewares/group.js'),
-    () => import('#app/middlewares/group-mode.js'),
+    () => import('#app/middlewares/bot-mode.js'),
+    () => import('#app/middlewares/bot-shortcut.js'),
+    () => import('#app/middlewares/group-table.js'),
     () => import('#app/middlewares/group-score.js'),
+    () => import('#app/middlewares/group-blockwords.js'),
+    () => import('#app/middlewares/group-status.js'),
+    () => import('#app/middlewares/group-recorder.js'),
+    () => import('#app/middlewares/group-mode.js'),
+    () => import('#app/middlewares/kurisu-chat.js'),
   ],
 }
 
@@ -163,7 +182,9 @@ export default defineCommand({
   name: 'kick',
   aliases: ['kick'],
   category: 'group',
-  description: 'Kick group member by tag or reply',
+  description: 'Keluarkan member grup lewat tag atau reply',
+  usage: 'kick <@tag|reply> [alasan]',
+  examples: ['kick @member', '(reply) kick spam'],
 
   // Parameterized middleware guards (auto-resolved by bot service):
   middlewares: ['group', 'sender:admin,superAdmin', 'bot:admin'],
@@ -173,7 +194,7 @@ export default defineCommand({
 
     // Command logic goes here!
     // No need for manual isCommand() or permission checking.
-    await msg.reply('Target removed successfully.')
+    await msg.reply('Member berhasil dikeluarkan.')
   },
 })
 ```
@@ -183,7 +204,10 @@ export default defineCommand({
 - **`name`** (string): Nama unik pengenal modul/perintah (contoh: `'kick'`, `'ping'`). Hanya sebagai unique identifier metadata, **BUKAN trigger command**.
 - **`aliases`** (string[]): Daftar trigger command yang dapat dieksekusi pengguna di WhatsApp (contoh: `['kick']`, `['ping']`, `['menu', 'help']`, `['>', '>>']`).
 - **`category`** (string): Kategori perintah untuk pengelompokan menu (contoh: `'group'`, `'utility'`, `'owner'`).
-- **`description`** (string): Deskripsi ringkas dalam Bahasa Inggris baku.
+- **`description`** (string): Deskripsi singkat **Bahasa Indonesia** yang tampil di menu dan docs.
+- **`usage`** (string, opsional): Pola pemakaian **tanpa prefix** (contoh: `call <nomor|@tag|reply> [detik]`).
+- **`examples`** (string[], opsional): Contoh perintah **tanpa prefix**.
+- **`hidden`** (boolean, opsional): Sembunyikan command internal dari menu dan docs.
 - **`middlewares`** (string[]): Daftar guard middleware (contoh: `['group', 'sender:isOwner']`).
 - **`prefix`** (`boolean | 'optional'`):
   - `true` (default): Wajib diawali prefix bot.
@@ -200,16 +224,16 @@ Bot service framework secara otomatis menyediakan 4 guard bawaan:
 1. **`sender:<role1>,<role2>`**:
    - Memastikan pengirim memiliki setidaknya salah satu peran yang diminta (`admin`, `superAdmin`, `isOwner`).
    - Contoh: `'sender:isOwner'`, `'sender:admin,superAdmin'`, `'sender:admin,superAdmin,isOwner'`.
-   - Pesan penolakan otomatis: `'Only Owner!'` (jika hanya owner) atau `'Only Admin!'`.
+   - Pesan penolakan otomatis: `'Khusus owner!'` (jika hanya owner) atau `'Khusus admin!'`.
 2. **`bot:<role>`**:
    - Memastikan bot memiliki hak akses (`bot:admin`).
-   - Pesan penolakan otomatis: `'Bot is not Admin!'`.
+   - Pesan penolakan otomatis: `'Bot bukan admin!'`.
 3. **`group`**:
    - Memastikan perintah dieksekusi di dalam grup WhatsApp.
-   - Pesan penolakan otomatis: `'Only in Group!'`.
+   - Pesan penolakan otomatis: `'Hanya bisa di grup!'`.
 4. **`private`**:
    - Memastikan perintah dieksekusi di chat pribadi (bukan grup).
-   - Pesan penolakan otomatis: `'Only in Private Chat!'`.
+   - Pesan penolakan otomatis: `'Hanya bisa di chat pribadi!'`.
 
 ---
 
@@ -219,3 +243,49 @@ Bot service framework secara otomatis menyediakan 4 guard bawaan:
   - ✅ `logger.info('[REGISTRY]', 'Loaded 11 commands');`
   - ✅ `throw new Error('Chat JID is required');`
   - ❌ `logger.info('[BOT]', 'Memuat perintah bot');` (DILARANG!)
+
+---
+
+## 8. Bahasa, Menu, dan Dokumentasi
+
+### 8.1 Aturan bahasa
+
+- **Teks yang dilihat pengguna** (balasan command, deskripsi menu, guard, error yang dikirim ke WhatsApp) **WAJIB Bahasa Indonesia**.
+- **Kode, identifier, nama file, komentar teknis, log, dan exception** tetap **Bahasa Inggris** agar konsisten dengan core.
+- Dokumentasi (`README.md`, `docs/*.md`, `AGENTS.md`) memakai **Bahasa Indonesia**.
+- Hindari mencampur dua bahasa dalam satu kalimat user-facing.
+
+### 8.2 Metadata command
+
+Setiap command wajib punya `description` Bahasa Indonesia. Untuk command yang punya argumen/subcommand, tambahkan:
+
+```javascript
+description: 'Telepon nomor WhatsApp selama N detik (owner)',
+usage: 'call <nomor|@tag|reply> [detik]',
+examples: ['call 628123456789 5', 'call aku 30'],
+```
+
+- `usage` dan `examples` **tanpa prefix**; menu menambahkan prefix aktif.
+- Command internal/debug gunakan `hidden: true` agar tidak muncul di menu/docs.
+
+### 8.3 Menu dan docs
+
+- Menu dihasilkan dari metadata registry (`app/services/bot/menu.js`):
+  - `menu` → semua command + deskripsi.
+  - `menu <kategori>` → filter kategori.
+  - `menu <command>` → detail command + usage + contoh.
+  - `menu command <nama>` → detail command yang namanya sama dengan kategori.
+- Jangan hardcode daftar command di dokumen. Regenerate:
+
+```bash
+npm run docs:commands
+```
+
+- Dokumentasi deploy ada di `docs/DEPLOYMENT.md`, ringkasan proyek di `README.md`.
+
+### 8.4 Verifikasi perubahan
+
+- Jalankan `node --check` untuk file yang diubah.
+- Untuk perubahan command/menu, verifikasi dengan memuat registry dan memanggil `formatMenuText` (lihat `scripts/command-docs.js`).
+- Untuk perubahan perilaku bot, uji jalur nyata (atau stub client seperti saat menguji `call_number`/TTS) sebelum deploy.
+- Setelah `git pull` di server, jalankan `systemctl restart kurisu` dan cek log `ERROR`/`WARN`.

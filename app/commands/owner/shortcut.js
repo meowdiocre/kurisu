@@ -23,7 +23,9 @@ export default defineCommand({
   name: 'shortcut',
   aliases: ['shortcut'],
   category: 'owner',
-  description: 'Manage dynamic command shortcuts (sticker and emoji triggers)',
+  description: 'Kelola shortcut command dinamis (trigger stiker dan emoji)',
+  usage: 'shortcut <list|add|del> [trigger] [command]',
+  examples: ['shortcut list', 'shortcut add .hi ping'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {

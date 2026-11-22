@@ -247,11 +247,36 @@ export async function synthesizeVoice(text, options = {}) {
  * @returns {'off' | 'voice' | 'both'}
  */
 export function getVoiceReplyMode() {
-  const raw = String(process.env.TTS_REPLY_MODE || 'off')
+  const raw = String(process.env.TTS_REPLY_MODE || 'auto')
     .trim()
     .toLowerCase();
-  if (raw === 'voice' || raw === 'both') return raw;
+  if (raw === 'voice' || raw === 'both' || raw === 'auto') return raw;
   return 'off';
+}
+
+/**
+ * Deteksi apakah user meminta balasan dalam bentuk suara.
+ * Dipakai mode `auto` supaya tidak semua balasan jadi voice note.
+ *
+ * @param {string} text
+ * @returns {boolean}
+ */
+export function wantsVoiceReply(text) {
+  const value = String(text || '')
+    .toLowerCase()
+    .trim();
+  if (!value) return false;
+
+  const requestWithVoice =
+    /(pakai|pake|make|dalam bentuk|jadiin|jadi|kirim|bales|balas|jawab|respon|reply|bicara|ngomong)[^.?!\n]{0,24}(suara|voice|vn|vnote|audio|tts)/i;
+  if (requestWithVoice.test(value)) return true;
+
+  if (/\b(voice ?note|vnote|vn|tts)\b/i.test(value)) return true;
+
+  // "ngomong dong" / "bicara aja" yang singkat dan jelas meminta suara.
+  if (value.length <= 24 && /^(ngomong|bicara)\b/i.test(value)) return true;
+
+  return false;
 }
 
 export default {
@@ -260,4 +285,5 @@ export default {
   TTS_MAX_CHARS,
   synthesizeVoice,
   getVoiceReplyMode,
+  wantsVoiceReply,
 };

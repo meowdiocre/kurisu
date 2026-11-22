@@ -10,7 +10,8 @@
     "start": "node core/server.js",
     "bot": "node core/server.js",
     "cli": "node kurisu.js",
-    "dev": "node --watch-path=app --watch-path=core core/server.js"
+    "dev": "node --watch-path=app --watch-path=core core/server.js",
+    "docs:commands": "node scripts/command-docs.js"
   },
   "imports": {
     "#app/*.js": "./app/*.js",

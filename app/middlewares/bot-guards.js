@@ -38,10 +38,10 @@ export async function senderGuard(payload, ctx, args = []) {
       (requiredRoles[0].toLowerCase() === 'isowner' ||
         requiredRoles[0].toLowerCase() === 'owner');
 
-    const rejection = isOnlyOwner ? 'Only Owner!' : 'Only Admin!';
+    const rejection = isOnlyOwner ? 'Khusus owner!' : 'Khusus admin!';
     if (typeof ctx.msg?.reply === 'function') {
       try {
-        // await ctx.msg.reply(rejection);
+        await ctx.msg.reply(rejection);
       } catch {}
     }
     return false;
@@ -78,7 +78,7 @@ export async function botGuard(payload, ctx, args = []) {
   if (!hasAccess) {
     if (typeof ctx.msg?.reply === 'function') {
       try {
-        await ctx.msg.reply('Bot is not Admin!');
+        await ctx.msg.reply('Bot bukan admin!');
       } catch {}
     }
     return false;
@@ -100,7 +100,7 @@ export async function groupOnlyGuard(payload, ctx) {
   if (!ctx.msg?.flags?.isGroup) {
     if (typeof ctx.msg?.reply === 'function') {
       try {
-        await ctx.msg.reply('Only in Group!');
+        await ctx.msg.reply('Hanya bisa di grup!');
       } catch {}
     }
     return false;
@@ -122,7 +122,7 @@ export async function privateOnlyGuard(payload, ctx) {
   if (ctx.msg?.flags?.isGroup) {
     if (typeof ctx.msg?.reply === 'function') {
       try {
-        await ctx.msg.reply('Only in Private Chat!');
+        await ctx.msg.reply('Hanya bisa di chat pribadi!');
       } catch {}
     }
     return false;

@@ -8,7 +8,9 @@ export default defineCommand({
   name: '$',
   aliases: ['$'],
   category: 'owner',
-  description: 'Execute shell commands directly from WhatsApp (owner only)',
+  description: 'Jalankan perintah shell langsung dari WhatsApp (owner)',
+  usage: '$ <perintah shell>',
+  examples: ['$ ls -la'],
   prefix: false,
   middlewares: ['sender:isOwner'],
 

@@ -89,7 +89,9 @@ export default defineCommand({
   name: 'owner',
   aliases: ['owner'],
   category: 'owner',
-  description: 'Manage bot owners (set, del, list)',
+  description: 'Kelola daftar owner bot (list, set, del)',
+  usage: 'owner <list|set|del> [target]',
+  examples: ['owner list', 'owner set @user', 'owner del 2'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {

@@ -2,14 +2,14 @@
  * Default guard rejection messages (concise, to-the-point)
  */
 export const DEFAULT_GUARD_MESSAGES = {
-  ownerOnly: 'Only Owner!',
-  adminOnly: 'Only Admin!',
-  superAdminOnly: 'Only Super Admin!',
-  botAdminOnly: 'Bot is not Admin!',
-  groupOnly: 'Only in Group!',
-  privateOnly: 'Only in Private Chat!',
-  quotedOnly: 'Reply a message!',
-  mediaOnly: 'Media required!',
+  ownerOnly: 'Khusus owner!',
+  adminOnly: 'Khusus admin!',
+  superAdminOnly: 'Khusus super admin!',
+  botAdminOnly: 'Bot bukan admin!',
+  groupOnly: 'Hanya bisa di grup!',
+  privateOnly: 'Hanya bisa di chat pribadi!',
+  quotedOnly: 'Reply pesan dulu!',
+  mediaOnly: 'Media diperlukan!',
 };
 
 /**

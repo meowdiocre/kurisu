@@ -36,7 +36,9 @@ export default defineCommand({
   name: 'kick',
   aliases: ['kick'],
   category: 'group',
-  description: 'Kick group member by tag or reply',
+  description: 'Keluarkan member grup lewat tag atau reply',
+  usage: 'kick <@tag|reply> [alasan]',
+  examples: ['kick @member', '(reply) kick spam'],
   middlewares: ['group', 'sender:admin,superAdmin', 'bot:admin'],
 
   async execute(payload, ctx) {

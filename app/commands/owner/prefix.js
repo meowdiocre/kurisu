@@ -7,7 +7,9 @@ export default defineCommand({
   name: 'prefix',
   aliases: ['prefix'],
   category: 'owner',
-  description: 'Manage bot command prefixes (list, add, set, del, reset)',
+  description: 'Kelola prefix command bot (list, add, set, del, reset)',
+  usage: 'prefix <list|add|set|del|reset> [prefix]',
+  examples: ['prefix list', 'prefix add !'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {

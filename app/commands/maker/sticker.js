@@ -6,8 +6,9 @@ export default defineCommand({
   name: 'sticker',
   aliases: ['s', 'sticker', 'stiker', 'smeme', 'stickermeme'],
   category: 'maker',
-  description:
-    'Convert image/video or media URL to sticker with optional meme text',
+  description: 'Ubah gambar/video atau URL media jadi stiker dengan teks meme opsional',
+  usage: 'sticker [teks atas|teks bawah]',
+  examples: ['sticker', 'sticker halo|dunia', 'sticker https://...'],
 
   async execute(payload, ctx) {
     const { client, msg } = ctx;
@@ -21,7 +22,7 @@ export default defineCommand({
 
       if (!sticker) {
         return await msg.reply(
-          'Reply or send an image/video, or provide a valid media URL.'
+          'Reply atau kirim gambar/video, atau berikan URL media yang valid.'
         );
       }
 
@@ -35,7 +36,7 @@ export default defineCommand({
       );
     } catch (err) {
       logger.error('[STICKER]', `Failed to process sticker: ${err.message}`);
-      await msg.reply('Failed to create sticker. Make sure media is valid.');
+      await msg.reply('Gagal membuat stiker. Pastikan medianya valid.');
     }
   },
 });

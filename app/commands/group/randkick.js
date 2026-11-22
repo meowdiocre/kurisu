@@ -6,7 +6,9 @@ export default defineCommand({
   name: 'randkick',
   aliases: ['randkick'],
   category: 'group',
-  description: 'Randomly kick group members within a specified score range',
+  description: 'Keluarkan member acak dalam rentang skor tertentu',
+  usage: 'randkick [min] [max]',
+  examples: ['randkick', 'randkick 0 10'],
   middlewares: ['group', 'sender:admin,superAdmin', 'bot:admin'],
 
   async execute(payload, ctx) {

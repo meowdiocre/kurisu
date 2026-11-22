@@ -6,7 +6,8 @@ export default defineCommand({
   name: 'toimg',
   aliases: ['toimg', 'tovid', 'tovideo', 'toimage'],
   category: 'maker',
-  description: 'Convert sticker back to image or video',
+  description: 'Ubah stiker kembali jadi gambar atau video',
+  usage: 'toimg',
 
   async execute(payload, ctx) {
     const { client, msg } = ctx;
@@ -15,13 +16,13 @@ export default defineCommand({
     try {
       // 1. Validate quoted sticker
       if (!msg.quoted || !msg.quoted.flags.isSticker) {
-        return await msg.reply('Reply to a sticker!');
+        return await msg.reply('Reply stikernya dulu!');
       }
 
       // 2. Download sticker buffer
       const dl = await msg.quoted.download();
       if (!dl || !Buffer.isBuffer(dl)) {
-        return await msg.reply('Failed to download sticker.');
+        return await msg.reply('Gagal mengunduh stiker.');
       }
       const stickerBuffer = dl;
 
@@ -58,7 +59,7 @@ export default defineCommand({
       }
     } catch (err) {
       logger.error('[TOIMG]', `Failed to convert sticker: ${err.message}`);
-      await msg.reply('Failed to convert sticker.');
+      await msg.reply('Gagal mengonversi stiker.');
     }
   },
 });

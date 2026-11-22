@@ -6,7 +6,9 @@ export default defineCommand({
   name: 'take',
   aliases: ['take', 'colong', 'wm', 'swm'],
   category: 'maker',
-  description: 'Change sticker EXIF metadata (packname and author)',
+  description: 'Ubah metadata stiker (packname dan author)',
+  usage: 'take <packname> [author]',
+  examples: ['take Kurisu', 'take Kurisu BOT'],
 
   async execute(payload, ctx) {
     const { client, msg } = ctx;
@@ -15,7 +17,7 @@ export default defineCommand({
     try {
       // 1. Validate that the quoted message is a sticker
       if (!msg.quoted || !msg.quoted.flags.isSticker) {
-        return await msg.reply('Reply to a sticker!');
+        return await msg.reply('Reply stikernya dulu!');
       }
 
       // 2. Parse packname & author from arguments
@@ -32,7 +34,7 @@ export default defineCommand({
       // 3. Download the quoted sticker buffer
       const dl = await msg.quoted.download();
       if (!dl || !Buffer.isBuffer(dl)) {
-        return await msg.reply('Failed to download sticker.');
+        return await msg.reply('Gagal mengunduh stiker.');
       }
       const stickerBuffer = dl;
 
@@ -53,7 +55,7 @@ export default defineCommand({
       );
     } catch (err) {
       logger.error('[TAKE]', `Failed to modify sticker EXIF: ${err.message}`);
-      await msg.reply('Failed to update sticker metadata.');
+      await msg.reply('Gagal memperbarui metadata stiker.');
     }
   },
 });

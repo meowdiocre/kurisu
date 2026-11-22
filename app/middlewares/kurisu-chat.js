@@ -12,7 +12,11 @@ import {
 import { getSkillDefinitions, executeSkill } from '#app/skills/index.js';
 import { extractMentionsFromText } from '#app/services/bot/index.js';
 import { resolvePersonaModesWithClient } from '#app/services/ai/persona-mode.js';
-import { getVoiceReplyMode, synthesizeVoice } from '#app/services/tts.js';
+import {
+  getVoiceReplyMode,
+  synthesizeVoice,
+  wantsVoiceReply,
+} from '#app/services/tts.js';
 
 /**
  * Generate a random integer between min and max inclusive
@@ -291,6 +295,12 @@ export default async function botAiChatMiddleware(payload, ctx) {
       // Reply back to WhatsApp. In voice mode, send a PTT voice note and fall
       // back to text when synthesis or the audio upload fails.
       const voiceMode = getVoiceReplyMode();
+      const effectiveVoiceMode =
+        voiceMode === 'auto'
+          ? wantsVoiceReply(cleanedText || rawText)
+            ? 'voice'
+            : 'off'
+          : voiceMode;
 
       const sendText = async () => {
         try {
@@ -304,12 +314,12 @@ export default async function botAiChatMiddleware(payload, ctx) {
         }
       };
 
-      if (voiceMode === 'both') {
+      if (effectiveVoiceMode === 'both') {
         await sendText();
       }
 
       const voice =
-        voiceMode === 'off' ? null : await synthesizeVoice(finalReply);
+        effectiveVoiceMode === 'off' ? null : await synthesizeVoice(finalReply);
 
       if (voice) {
         try {
@@ -329,9 +339,9 @@ export default async function botAiChatMiddleware(payload, ctx) {
             '[AI_CHAT]',
             `Voice reply failed in ${msg.chat}; sending text: ${voiceErr.message}`
           );
-          if (voiceMode !== 'both') await sendText();
+          if (effectiveVoiceMode !== 'both') await sendText();
         }
-      } else if (voiceMode !== 'both') {
+      } else if (effectiveVoiceMode !== 'both') {
         await sendText();
       }
 

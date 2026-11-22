@@ -55,7 +55,9 @@ export default defineCommand({
   name: 'reminder',
   aliases: ['remind', 'reminder', 'alarm'],
   category: 'utility',
-  description: 'Create, list, pause, and delete personal reminders',
+  description: 'Buat, lihat, jeda, dan hapus pengingat pribadi',
+  usage: 'reminder <add|list|del|pause> [...]',
+  examples: ['reminder add 10m minum obat', 'reminder list', 'reminder add 20:30 --call=5 rapat'],
 
   async execute(payload, ctx) {
     const { msg } = ctx;

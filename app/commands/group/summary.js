@@ -9,7 +9,9 @@ export default defineCommand({
   name: 'summary',
   aliases: ['summary', 'rangkum', 'rekap'],
   category: 'group',
-  description: 'AI-powered group chat summary',
+  description: 'Rangkum obrolan grup dengan AI',
+  usage: 'summary [jumlah pesan]',
+  examples: ['summary', 'summary 100'],
   middlewares: ['group', 'sender:admin,superAdmin,isOwner'],
 
   async execute(payload, ctx) {

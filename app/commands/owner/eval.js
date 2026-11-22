@@ -9,7 +9,9 @@ export default defineCommand({
   name: '>',
   aliases: ['>', '>>'],
   category: 'owner',
-  description: 'Evaluate JavaScript code directly from WhatsApp (owner only)',
+  description: 'Jalankan kode JavaScript langsung dari WhatsApp (owner)',
+  usage: '> <kode js>',
+  examples: ['> 1 + 1'],
   prefix: false,
   middlewares: ['sender:isOwner'],
 

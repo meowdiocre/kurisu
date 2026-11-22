@@ -60,7 +60,9 @@ export default defineCommand({
   name: 'download',
   aliases: ['dl', 'download'],
   category: 'downloader',
-  description: 'Download video, audio, or image from a supported media URL',
+  description: 'Unduh video, audio, atau gambar dari URL yang didukung',
+  usage: 'download <url>',
+  examples: ['download https://vt.tiktok.com/...'],
 
   async execute(payload, ctx) {
     const { client, msg } = ctx;
@@ -93,7 +95,7 @@ export default defineCommand({
       );
     } catch (err) {
       logger.error('[DOWNLOAD]', `Failed to download media: ${err.message}`);
-      await msg.reply(`Download failed: ${err.message}`);
+      await msg.reply(`Gagal mengunduh: ${err.message}`);
     }
   },
 });

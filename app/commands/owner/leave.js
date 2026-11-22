@@ -9,7 +9,8 @@ export default defineCommand({
   name: 'leave',
   aliases: ['leave', 'out'],
   category: 'owner',
-  description: 'Make bot exit the current group (owner only)',
+  description: 'Keluarkan bot dari grup saat ini (owner)',
+  usage: 'leave',
   middlewares: ['group', 'sender:isOwner'],
 
   async execute(payload, ctx) {
@@ -18,7 +19,7 @@ export default defineCommand({
 
     const groupJid = msg.chat;
 
-    await msg.reply('Selamat tinggal! 👋');
+    await msg.reply('Selamat tinggal!');
     await delay(1000);
 
     // 1. Instruct client to leave the group

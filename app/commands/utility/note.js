@@ -22,7 +22,9 @@ export default defineCommand({
   name: 'note',
   aliases: ['note', 'notes'],
   category: 'utility',
-  description: 'Save and read personal notes',
+  description: 'Simpan dan baca catatan pribadi',
+  usage: 'note <list|add|del|get> [nama]',
+  examples: ['note list', 'note add ide catatan saya'],
 
   async execute(payload, ctx) {
     const { msg } = ctx;
@@ -137,7 +139,7 @@ export default defineCommand({
 
     // Every read or delete operation exposes private note data.
     if (isGroup) {
-      return msg.reply('Only in Private Chat!');
+      return msg.reply('Hanya bisa di chat pribadi!');
     }
 
     if (subcommand === 'list' || subcommand === 'ls') {
@@ -153,7 +155,7 @@ export default defineCommand({
 
       const lines = notes.map(
         (note) =>
-          `• \`${note.name}\` — ${formatNotePreview(note.content)} _(${formatNoteTime(note)})_`
+          `• \`${note.name}\`: ${formatNotePreview(note.content)} _(${formatNoteTime(note)})_`
       );
 
       return msg.reply(
@@ -186,7 +188,7 @@ export default defineCommand({
 
       const lines = notes.map(
         (note) =>
-          `• \`${note.name}\` — ${formatNotePreview(note.content)} _(${formatNoteTime(note)})_`
+          `• \`${note.name}\`: ${formatNotePreview(note.content)} _(${formatNoteTime(note)})_`
       );
 
       return msg.reply(

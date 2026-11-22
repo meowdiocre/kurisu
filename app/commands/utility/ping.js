@@ -25,7 +25,8 @@ export default defineCommand({
   name: 'ping',
   aliases: ['ping'],
   category: 'utility',
-  description: 'Check bot responsiveness and server specifications',
+  description: 'Cek respons bot dan spesifikasi server',
+  usage: 'ping',
 
   async execute(payload, ctx) {
     const msg = ctx.msg;

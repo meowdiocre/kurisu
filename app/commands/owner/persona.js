@@ -94,6 +94,9 @@ export default defineCommand({
   name: 'persona',
   aliases: ['persona'],
   category: 'owner',
+  description: 'Kelola persona khusus dan mode girlfriend/18+ untuk user tertentu',
+  usage: 'persona <list|set|del> [mode] [target]',
+  examples: ['persona list', 'persona set girlfriend @user', 'persona del @user'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {

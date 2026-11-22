@@ -34,7 +34,9 @@ export default defineCommand({
   name: 'gnote',
   aliases: ['gnote', 'gnotes'],
   category: 'group',
-  description: 'Save and read notes shared with the group',
+  description: 'Simpan dan baca catatan bersama di grup',
+  usage: 'gnote <list|add|del|get> [nama]',
+  examples: ['gnote list', 'gnote add aturan isi grup'],
   middlewares: ['group'],
 
   async execute(payload, ctx) {
@@ -79,7 +81,7 @@ export default defineCommand({
       subcommand === 'set'
     ) {
       if (!isGroupAdmin(msg)) {
-        return msg.reply('Only Admin!');
+        return msg.reply('Khusus admin!');
       }
 
       const { name, content: inlineContent } = splitNoteSaveInput(rest);
@@ -148,7 +150,7 @@ export default defineCommand({
 
       const lines = notes.map(
         (note) =>
-          `• \`${note.name}\` — ${formatNotePreview(note.content)} _(${note.author_name || 'admin'} · ${formatNoteTime(note)})_`
+          `• \`${note.name}\`: ${formatNotePreview(note.content)} _(${note.author_name || 'admin'} · ${formatNoteTime(note)})_`
       );
 
       return msg.reply(
@@ -182,7 +184,7 @@ export default defineCommand({
 
       const lines = notes.map(
         (note) =>
-          `• \`${note.name}\` — ${formatNotePreview(note.content)} _(${note.author_name || 'admin'} · ${formatNoteTime(note)})_`
+          `• \`${note.name}\`: ${formatNotePreview(note.content)} _(${note.author_name || 'admin'} · ${formatNoteTime(note)})_`
       );
 
       return msg.reply(
@@ -201,7 +203,7 @@ export default defineCommand({
       subcommand === 'remove'
     ) {
       if (!isGroupAdmin(msg)) {
-        return msg.reply('Only Admin!');
+        return msg.reply('Khusus admin!');
       }
 
       const name = normalizeNoteName(rest);

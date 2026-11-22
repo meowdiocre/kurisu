@@ -23,7 +23,9 @@ export default defineCommand({
   name: 'say',
   aliases: ['say', 'tts', 'ngomong'],
   category: 'owner',
-  description: 'Speak text as a WhatsApp voice note (owner only)',
+  description: 'Ucapkan teks sebagai voice note WhatsApp (owner)',
+  usage: 'say [provider] <teks>',
+  examples: ['say test', 'say elevenlabs halo aku kurisu', 'say halo'],
   middlewares: ['sender:isOwner'],
 
   async execute(payload, ctx) {
@@ -31,7 +33,7 @@ export default defineCommand({
     if (!msg) return;
 
     if (!client?.message?.send) {
-      return msg.reply('Voice sender is not available.');
+      return msg.reply('Pengirim voice tidak tersedia.');
     }
 
     const prefix = msg.body?.prefix || '.';
@@ -54,10 +56,10 @@ export default defineCommand({
       if (process.env.ELEVENLABS_API_KEY) providers.push('elevenlabs');
 
       for (const name of providers) {
-        await msg.reply(`Sample *${name}*:`);
+        await msg.reply(`Contoh suara *${name}*:`);
         const voice = await synthesizeVoice(SAMPLE_TEXT, { provider: name });
         if (!voice) {
-          await msg.reply(`_${name} gagal synthesize._`);
+          await msg.reply(`_${name} gagal dibuat._`);
           continue;
         }
         try {

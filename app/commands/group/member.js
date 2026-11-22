@@ -54,8 +54,9 @@ export default defineCommand({
   name: 'member',
   aliases: ['member'],
   category: 'group',
-  description:
-    'Show group member database information and edit values (for admins)',
+  description: 'Tampilkan data member grup dan ubah nilainya (admin)',
+  usage: 'member <@tag|reply>',
+  examples: ['member @user', 'member @user score=10'],
   middlewares: ['group'],
 
   async execute(payload, ctx) {
@@ -78,7 +79,7 @@ export default defineCommand({
     // ==========================================
     if (subcommand === 'set') {
       if (!isAdmin) {
-        return msg.reply('Only Admin!');
+        return msg.reply('Khusus admin!');
       }
 
       // Syntax formats:

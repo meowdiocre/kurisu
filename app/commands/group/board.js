@@ -6,7 +6,8 @@ export default defineCommand({
   name: 'board',
   aliases: ['board'],
   category: 'group',
-  description: 'Display top 10 active group members leaderboard',
+  description: 'Tampilkan 10 member grup paling aktif',
+  usage: 'board',
   middlewares: ['group'],
 
   async execute(payload, ctx) {

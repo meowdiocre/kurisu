@@ -5,8 +5,9 @@ export default defineCommand({
   name: 'blockword',
   aliases: ['badword', 'blockword'],
   category: 'group',
-  description:
-    'Manage blocked words and link filter patterns for the group (admin only)',
+  description: 'Kelola kata terlarang dan pola filter link di grup (admin)',
+  usage: 'blockword <list|add|del|reset> [kata]',
+  examples: ['blockword list', 'blockword add kata1 kata2'],
   middlewares: ['group', 'sender:admin,superAdmin,isOwner', 'bot:admin'],
 
   async execute(payload, ctx) {
