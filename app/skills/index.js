@@ -1,6 +1,7 @@
 import logger from '@kurisu/core/utils/logger';
 import stickerSkill from './sticker.js';
 import downloadMediaSkill from './download-media.js';
+import callNumberSkill from './call-number.js';
 import reminderSkill from './reminder.js';
 import groupInfoSkill from './group-info.js';
 import memberInfoSkill from './member-info.js';
@@ -18,6 +19,7 @@ import deleteNoteSkill from './delete-note.js';
 export const skills = [
   stickerSkill,
   downloadMediaSkill,
+  callNumberSkill,
   reminderSkill,
   groupInfoSkill,
   memberInfoSkill,
