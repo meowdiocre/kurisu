@@ -2,7 +2,7 @@ import { delay } from '@kurisu/core/utils/common';
 import logger from '@kurisu/core/utils/logger';
 import { isLidJid } from 'zapo-js';
 
-export const MAX_CALL_SECONDS = 30;
+export const MAX_CALL_SECONDS = 120;
 export const DEFAULT_CALL_SECONDS = 5;
 
 const cleanDigits = (value) => String(value || '').replace(/[^0-9]/g, '');
