@@ -1,6 +1,7 @@
 import { imageToWebp, videoToWebp } from '@kurisu/core/utils/converter';
 import { writeExif } from '@kurisu/core/utils/metadata';
 import { Http } from '@kurisu/core/utils/http';
+import { downloadMedia } from '#app/services/downloader-media.js';
 
 const URL_REGEX = /https?:\/\/[^\s]+/;
 
@@ -62,6 +63,18 @@ async function resolveUrlMedia(url) {
   }
   if (mime.startsWith('video/')) {
     return { buffer: downloaded.buffer, mediaType: 'video' };
+  }
+
+  try {
+    const media = await downloadMedia(url, { type: 'video' });
+    if (media?.buffer) {
+      return {
+        buffer: media.buffer,
+        mediaType: media.type === 'image' ? 'image' : 'video',
+      };
+    }
+  } catch {
+    // Keep the original null result when no downloader can parse the URL.
   }
 
   return null;

@@ -16,7 +16,7 @@ export default defineSkill({
       url: {
         type: 'string',
         description:
-          'Optional image or video URL when the user provides a link instead of media.',
+          'Optional image, video, or social media page URL (TikTok, Instagram, YouTube) when the user provides a link instead of media.',
       },
     },
   },
