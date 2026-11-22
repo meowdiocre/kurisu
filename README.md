@@ -1,30 +1,10 @@
 # Kurisu
 
-Bot WhatsApp berbasis Node.js dengan AI chat, manajemen grup, catatan, pengingat, stiker, downloader, miscall, dan balasan voice note (TTS).
+Bot WhatsApp Node.js dengan AI chat, manajemen grup, catatan, pengingat, stiker, downloader, miscall, dan voice note.
 
 Fork dari [`ilsyaa/nakiri`](https://github.com/ilsyaa/nakiri), di-rebrand dan dikembangkan sebagai **Kurisu**.
 
-## Fitur
-
-- **AI chat**: persona Kurisu, memory per chat, tool calling, dan fallback `[NO_REPLY]`.
-- **AI skills**: stiker, download media, reminder, info grup/member, catatan, miscall (owner), dan command runner aman.
-- **Voice note**: balasan AI bisa diucapkan lewat TTS (Edge, Google, atau ElevenLabs).
-- **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman AI, dan mode akses bot.
-- **Utility**: catatan pribadi/grup, reminder (termasuk miscall), ping, menu.
-- **Owner**: eval/exec, join/leave, owner/prefix/shortcut/persona, miscall, dan TTS manual.
-- **Session persisten**: kredensial WhatsApp disimpan di `storage/`, tidak perlu scan ulang setelah restart.
-- **SQLite default**: bisa diganti MySQL lewat env.
-
-## Stack
-
-- Node.js (disarankan **Node 24+**; `better-sqlite3` bisa segfault di Node 20/22)
-- `zapo-js` untuk WhatsApp Web
-- Knex + SQLite/MySQL
-- FFmpeg (stiker, audio)
-- yt-dlp (opsional, fallback downloader)
-- `edge-tts` (opsional) dan ElevenLabs API (opsional) untuk voice note
-
-## Menjalankan
+## Mulai cepat
 
 ```bash
 git clone git@github.com:t101804/kurisu.git
@@ -37,107 +17,77 @@ node kurisu.js migrate --seed
 npm start
 ```
 
-Saat pertama kali jalan, bot meminta QR atau pairing code di terminal. Di server non-interaktif, QR ditulis ke journal/log; lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Saat pertama jalan, bot meminta QR atau pairing code. Di server non-interaktif, QR ditulis ke journal; lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-## Konfigurasi
+## Fitur
 
-Semua konfigurasi lewat `.env`. Tabel lengkap ada di [.env.example](.env.example); yang penting:
+- **AI chat**: persona Kurisu, memory per chat, tool calling, fallback `[NO_REPLY]`.
+- **AI tools**: stiker, download media, reminder, info grup/member, catatan, miscall, dan command runner aman.
+- **Voice note**: Edge, Google, atau ElevenLabs.
+- **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman, mode akses.
+- **Utility**: catatan pribadi/grup, reminder, ping, menu.
+- **Owner**: eval/exec, join/leave, owner/prefix/shortcut/persona, miscall, TTS manual.
+- **Persisten**: sesi WhatsApp di `storage/`; SQLite default, MySQL opsional.
+
+## Konfigurasi inti
+
+Semua env ada di [.env.example](.env.example).
 
 | Env | Wajib | Keterangan |
 |---|---|---|
 | `KEY` | ya | Validasi startup |
 | `DB_CONNECTION` | ya | `sqlite` atau `mysql` |
-| `OWNER_NUMBERS` | tidak | Nomor owner (pisahkan koma) untuk seed database baru |
 | `AI_BASE_URL` / `AI_API_KEY` / `AI_MODEL` | untuk AI | Endpoint OpenAI-compatible |
-| `TAVILY_API_KEY` | tidak | Mengaktifkan tool pencarian web |
-| `TTS_REPLY_MODE` | tidak | `off`, `auto` (default), `voice`, atau `both` |
-| `TTS_PROVIDER` | tidak | `edge`, `google`, atau `elevenlabs` |
-| `ELEVENLABS_API_KEY` | tidak | Diperlukan untuk provider `elevenlabs` |
+| `OWNER_NUMBERS` | tidak | Nomor owner untuk seed database baru |
+| `TAVILY_API_KEY` | tidak | Tool pencarian web |
+| `TTS_REPLY_MODE` | tidak | `off`, `auto`, `voice`, `both` |
+| `TTS_PROVIDER` | tidak | `edge`, `google`, `elevenlabs` |
+| `ELEVENLABS_API_KEY` | tidak | Provider ElevenLabs |
 
-Owner tidak diatur lewat env saat runtime. Untuk database baru, isi `OWNER_NUMBERS` sebelum seed, atau ubah kolom `bots.owners` langsung. Setelah punya owner, gunakan `.owner set`.
+Owner runtime diatur lewat `.owner set` atau kolom `bots.owners`. Untuk database baru, isi `OWNER_NUMBERS` sebelum seed.
 
 ## Command
-
-Daftar lengkap dan usage: [docs/COMMANDS.md](docs/COMMANDS.md) (digenerate dari metadata command).
 
 ```bash
 npm run docs:commands   # regenerate docs/COMMANDS.md
 ```
 
-Di WhatsApp:
-
 ```text
 .menu                    # semua fitur
 .menu owner              # filter kategori
 .menu call               # detail satu command
-.menu command owner      # detail command bernama sama dengan kategori
 ```
 
-Command owner yang sering dipakai:
+Daftar lengkap: [docs/COMMANDS.md](docs/COMMANDS.md).
 
-```text
-.call 628123456789 10     # miscall 10 detik
-.say test                 # bandingkan suara edge/google/elevenlabs
-.say elevenlabs halo      # voice note manual
-.owner list
-```
+## AI
 
-## AI & Skill
+Endpoint AI harus OpenAI-compatible dan mendukung tool calling. Tool yang terdaftar:
 
-Endpoint AI harus OpenAI-compatible dan mendukung tool calling. Skill yang terdaftar:
+`create_sticker`, `download_media`, `run_bot_command`, `call_number`, `create_reminder`, `list_reminders`, `cancel_reminder`, `get_group_info`, `get_member_info`, `save_note`, `get_note`, `list_notes`, `delete_note`.
 
-- `create_sticker`, `download_media`
-- `run_bot_command`: menjalankan command aman dengan guard yang sama (kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping)
-- `call_number` (owner)
-- `create_reminder`, `list_reminders`, `cancel_reminder`
-- `get_group_info`, `get_member_info`
-- `save_note`, `get_note`, `list_notes`, `delete_note`
+`run_bot_command` menjalankan command aman dengan guard yang sama seperti manual: kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping.
 
-Command berisiko seperti `eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, `call`, dan `say` sengaja **tidak** diekspos ke AI; jalankan manual oleh owner. Semua aksi lewat `run_bot_command` tetap melewati guard admin/owner dan bot-admin yang sama seperti command manual.
+`eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, `call`, dan `say` tidak diekspos ke AI; jalankan manual oleh owner.
 
-Downloader memakai VidsSave lebih dulu, lalu fallback tikwm untuk TikTok dan yt-dlp untuk sumber lain. Kalau yt-dlp tidak dipasang, fallback itu dilewati.
+Downloader memakai VidsSave, lalu fallback tikwm (TikTok) dan yt-dlp. Stiker bisa langsung dibuat dari link TikTok/Instagram/YouTube.
 
-Di grup, AI hanya merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua pesan non-command diproses.
-
-## TTS
-
-| Provider | Kualitas | Catatan |
-|---|---|---|
-| `edge` | neural, gratis | Butuh `edge-tts` di host |
-| `google` | natural, gratis | Endpoint tidak resmi, bisa kena limit |
-| `elevenlabs` | paling manusiawi | Butuh API key; free tier tidak bisa memakai library voice |
-
-Mode balasan (`TTS_REPLY_MODE`):
-
-- `auto` (default): teks untuk balasan normal; voice note hanya saat user minta suara (“bales pake suara”, “kirim voice note”).
-- `off`: selalu teks.
-- `voice`: selalu voice note.
-- `both`: teks lalu voice note.
-
-Contoh setup ElevenLabs:
-
-```env
-TTS_PROVIDER=elevenlabs
-TTS_REPLY_MODE=auto
-ELEVENLABS_API_KEY=sk_...
-ELEVENLABS_VOICE_ID=cgSgspJ2msm6clMCkdW9
-ELEVENLABS_MODEL=eleven_multilingual_v2
-```
+Di grup, AI merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua pesan non-command diproses.
 
 ## Dokumentasi
 
-- [docs/COMMANDS.md](docs/COMMANDS.md): daftar command, alias, usage, akses.
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): deploy systemd, QR, owner bootstrap, TTS, troubleshooting.
+- [docs/COMMANDS.md](docs/COMMANDS.md): command, alias, usage, akses.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): systemd, QR, owner, TTS, troubleshooting.
 - [AGENTS.md](AGENTS.md): arsitektur dan aturan kontribusi.
 
-## Troubleshooting singkat
+## Catatan
 
-- **Bot tidak membalas di grup**: pastikan bot di-tag atau pesan me-reply pesan bot. Teks yang diawali nama command tanpa prefix tidak lagi memblokir AI.
-- **`better-sqlite3` exit 139**: ganti ke Node 24+.
-- **QR kedaluwarsa**: restart service lalu ambil QR terbaru dari journal.
-- **Miscall gagal `no device sessions`**: target tidak punya device WhatsApp yang bisa dihubungi; bot mencoba LID lalu PN.
-- **ElevenLabs 402 `paid_plan_required`**: voice library butuh plan berbayar; gunakan voice premade atau provider Google/Edge.
+- Gunakan **Node 24+**; `better-sqlite3` bisa segfault di Node 20/22.
+- FFmpeg wajib untuk stiker/audio. `edge-tts` dan `yt-dlp` opsional.
+- QR kedaluwarsa: restart service, ambil QR terbaru dari journal.
+- Miscall `no device sessions`: target tidak punya device WhatsApp yang bisa dihubungi.
+- ElevenLabs 402: voice library butuh plan berbayar; pakai voice premade atau Edge/Google.
 
-## Lisensi & atribusi
+## Lisensi
 
-Proyek ini adalah fork dari `ilsyaa/nakiri` (ISC). Pertahankan atribusi ke proyek asli saat mempublikasikan turunan.
+Fork dari `ilsyaa/nakiri` (ISC). Pertahankan atribusi proyek asli saat mempublikasikan turunan.
