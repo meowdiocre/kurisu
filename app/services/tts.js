@@ -206,7 +206,6 @@ export async function synthesizeVoice(text, options = {}) {
   const requested = String(
     options.provider || process.env.TTS_PROVIDER || 'edge'
   ).toLowerCase();
-  const voice = options.voice || TTS_VOICE;
 
   const order = [requested, 'edge'].filter(
     (provider, index, list) =>
@@ -214,6 +213,12 @@ export async function synthesizeVoice(text, options = {}) {
   );
 
   for (const provider of order) {
+    const voice =
+      provider === 'elevenlabs'
+        ? options.voice ||
+          process.env.ELEVENLABS_VOICE_ID ||
+          '21m00Tcm4TlvDq8ikWAM'
+        : options.voice || TTS_VOICE;
     const cacheKey = `voice:${provider}:${voice}:${hashKey(input)}`;
     const cached = await cache.get(cacheKey);
     if (cached) return cached;
