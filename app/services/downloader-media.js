@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import net from 'node:net';
 import vm from 'node:vm';
 import { Http } from '@kurisu/core/utils/http';
+import { downloadWithYtDlp } from '#app/services/ytdlp.js';
+import { downloadTikTok, isTikTokUrl } from '#app/services/tiktok.js';
 
 if (typeof net.setDefaultAutoSelectFamilyAttemptTimeout === 'function') {
   net.setDefaultAutoSelectFamilyAttemptTimeout(5000);
@@ -675,7 +677,7 @@ async function fetchMediaBinary(downloadUrl) {
  * @param {{ type?: 'video' | 'audio' | 'image', quality?: string }} [options]
  * @returns {Promise<DownloadedMedia>}
  */
-export async function downloadMedia(url, options = {}) {
+async function downloadViaVidsSave(url, options = {}) {
   const { type = 'video', quality } = options;
   const parsed = await parseMedia(url);
 
@@ -751,6 +753,39 @@ export async function downloadMedia(url, options = {}) {
     filename,
     buffer,
   };
+}
+
+/**
+ * Download media, falling back to yt-dlp when VidsSave cannot parse the URL.
+ *
+ * @param {string} url
+ * @param {{ type?: 'video' | 'audio' | 'image', quality?: string }} [options]
+ * @returns {Promise<DownloadedMedia>}
+ */
+export async function downloadMedia(url, options = {}) {
+  try {
+    return await downloadViaVidsSave(url, options);
+  } catch (primaryError) {
+    const errors = [primaryError.message];
+
+    if (isTikTokUrl(url)) {
+      try {
+        return await downloadTikTok(url, options);
+      } catch (tiktokError) {
+        errors.push(`tiktok: ${tiktokError.message}`);
+      }
+    }
+
+    if (String(process.env.YTDLP_DISABLED || '').toLowerCase() !== 'true') {
+      try {
+        return await downloadWithYtDlp(url, options);
+      } catch (fallbackError) {
+        errors.push(`yt-dlp: ${fallbackError.message}`);
+      }
+    }
+
+    throw new Error(errors.join('; '));
+  }
 }
 
 export default { parseMedia, downloadMedia };

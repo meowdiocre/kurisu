@@ -166,6 +166,22 @@ TTS_EDGE_BIN=/opt/tts-venv/bin/edge-tts
 
 `TTS_REPLY_MODE=auto` mengirim voice note hanya saat user meminta (mis. “bales pake suara”); selain itu teks. Gunakan `voice`/`both` kalau ingin selalu bersuara.
 
+### Fallback downloader (opsional)
+
+```bash
+python3 -m venv /opt/ytdlp-venv
+/opt/ytdlp-venv/bin/pip install -U yt-dlp
+```
+
+`.env`:
+
+```env
+YTDLP_BIN=/opt/ytdlp-venv/bin/yt-dlp
+# YTDLP_DISABLED=true
+```
+
+Urutan downloader: VidsSave, lalu tikwm untuk TikTok, lalu yt-dlp. Kalau yt-dlp tidak tersedia, fallback terakhir dilewati.
+
 ### Google TTS
 
 Tidak perlu key:

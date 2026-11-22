@@ -7,7 +7,7 @@ Fork dari [`ilsyaa/nakiri`](https://github.com/ilsyaa/nakiri), di-rebrand dan di
 ## Fitur
 
 - **AI chat**: persona Kurisu, memory per chat, tool calling, dan fallback `[NO_REPLY]`.
-- **AI skills**: stiker, download media, reminder, info grup/member, catatan, dan miscall (owner).
+- **AI skills**: stiker, download media, reminder, info grup/member, catatan, miscall (owner), dan command runner aman.
 - **Voice note**: balasan AI bisa diucapkan lewat TTS (Edge, Google, atau ElevenLabs).
 - **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman AI, dan mode akses bot.
 - **Utility**: catatan pribadi/grup, reminder (termasuk miscall), ping, menu.
@@ -21,6 +21,7 @@ Fork dari [`ilsyaa/nakiri`](https://github.com/ilsyaa/nakiri), di-rebrand dan di
 - `zapo-js` untuk WhatsApp Web
 - Knex + SQLite/MySQL
 - FFmpeg (stiker, audio)
+- yt-dlp (opsional, fallback downloader)
 - `edge-tts` (opsional) dan ElevenLabs API (opsional) untuk voice note
 
 ## Menjalankan
@@ -93,6 +94,8 @@ Endpoint AI harus OpenAI-compatible dan mendukung tool calling. Skill yang terda
 - `save_note`, `get_note`, `list_notes`, `delete_note`
 
 Command berisiko seperti `eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, `call`, dan `say` sengaja **tidak** diekspos ke AI; jalankan manual oleh owner. Semua aksi lewat `run_bot_command` tetap melewati guard admin/owner dan bot-admin yang sama seperti command manual.
+
+Downloader memakai VidsSave lebih dulu, lalu fallback tikwm untuk TikTok dan yt-dlp untuk sumber lain. Kalau yt-dlp tidak dipasang, fallback itu dilewati.
 
 Di grup, AI hanya merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua pesan non-command diproses.
 
