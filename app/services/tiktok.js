@@ -101,12 +101,14 @@ export async function downloadTikTok(url, options = {}) {
   if (type === 'audio') {
     mediaUrl = data.music || data.play || '';
     kind = 'audio';
+  } else if (images.length > 0) {
+    mediaUrl = images[0];
+    kind = 'image';
   } else if (type === 'image') {
-    mediaUrl = images[0] || data.play || '';
-    kind = images.length > 0 ? 'image' : 'video';
+    throw new Error('This TikTok post has no images');
   } else {
-    mediaUrl = data.play || data.wmplay || images[0] || '';
-    kind = images.length > 0 && !data.play ? 'image' : 'video';
+    mediaUrl = data.play || data.wmplay || '';
+    kind = 'video';
   }
 
   if (!mediaUrl) {

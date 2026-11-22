@@ -45,7 +45,7 @@ export default defineSkill({
   async execute(args, context) {
     const { client, msg, payload } = context || {};
     if (!msg || !client?.message?.send) {
-      return 'Media downloader is not available in this chat.';
+      return 'Downloader media tidak tersedia di chat ini.';
     }
 
     const url =
@@ -53,7 +53,7 @@ export default defineSkill({
       extractUrl(msg.body?.rawText || '') ||
       extractUrl(msg.quoted?.body?.rawText || '');
     if (!url) {
-      return 'No media URL was found. Ask the user to send a link or reply to a message containing one.';
+      return 'Link media tidak ditemukan. Minta user kirim link atau reply pesan yang berisi link.';
     }
 
     const requestedType = String(args?.type || '').toLowerCase();
@@ -76,13 +76,13 @@ export default defineSkill({
         { quote: payload }
       );
 
-      return `Media sent to the chat: ${media.type}, ${media.quality}, ${media.format}, ${formatFileSize(media.buffer.length)}. Reply to the user naturally in one short sentence.`;
+      return `Media sudah dikirim ke chat: ${media.type}, ${media.quality}, ${media.format}, ${formatFileSize(media.buffer.length)}. Balas user natural dalam satu kalimat pendek.`;
     } catch (err) {
       logger.error(
         '[AI_SKILL]',
         `download_media failed for ${url}: ${err.message}`
       );
-      return `Media download failed: ${err.message}`;
+      return `Download media gagal: ${err.message}`;
     }
   },
 });
