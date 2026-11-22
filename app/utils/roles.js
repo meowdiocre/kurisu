@@ -21,5 +21,3 @@ export function isGroupAdmin(msg) {
       msg?.permissions?.sender?.isOwner
   );
 }
-
-export default { isOwner, isGroupAdmin };

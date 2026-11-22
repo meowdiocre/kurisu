@@ -20,5 +20,3 @@ export function formatRelativeTime(value, fallback = '-') {
   if (!dt.isValid) return fallback;
   return dt.setLocale('id').toRelative() || dt.toFormat('dd LLL yyyy') || fallback;
 }
-
-export default { formatRelativeTime };

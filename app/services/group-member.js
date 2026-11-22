@@ -34,5 +34,3 @@ export async function findGroupMember(groupId, identity = {}) {
     })
     .first();
 }
-
-export default { findGroupMember };
