@@ -12,6 +12,7 @@ import {
 import { getSkillDefinitions, executeSkill } from '#app/skills/index.js';
 import { extractMentionsFromText } from '#app/services/bot/index.js';
 import { resolvePersonaModesWithClient } from '#app/services/ai/persona-mode.js';
+import { getVoiceReplyMode, synthesizeVoice } from '#app/services/tts.js';
 
 /**
  * Generate a random integer between min and max inclusive
@@ -287,16 +288,58 @@ export default async function botAiChatMiddleware(payload, ctx) {
       await appendChatHistory(msg.chat, 'user', userEntry);
       await appendChatHistory(msg.chat, 'assistant', finalReply);
 
-      // Reply back to WhatsApp. Fall back to a plain send when quoting the
-      // group message fails, so a direct mention never ends silently.
-      try {
-        await msg.reply(finalReply);
-      } catch (sendErr) {
-        logger.warn(
-          '[AI_CHAT]',
-          `Quoted reply failed in ${msg.chat}; sending without quote: ${sendErr.message}`
-        );
-        await msg.send(finalReply);
+      // Reply back to WhatsApp. In voice mode, send a PTT voice note and fall
+      // back to text when synthesis or the audio upload fails.
+      const voiceMode = getVoiceReplyMode();
+      const voice =
+        voiceMode === 'off' ? null : await synthesizeVoice(finalReply);
+
+      if (voice) {
+        if (voiceMode === 'both') {
+          try {
+            await msg.reply(finalReply);
+          } catch (sendErr) {
+            logger.warn(
+              '[AI_CHAT]',
+              `Quoted reply failed in ${msg.chat}; sending without quote: ${sendErr.message}`
+            );
+            await msg.send(finalReply);
+          }
+        }
+
+        try {
+          await client.message.send(
+            msg.chat,
+            {
+              type: 'audio',
+              media: voice.buffer,
+              mimetype: voice.mimetype,
+              ptt: true,
+              seconds: voice.seconds,
+            },
+            { quote: payload }
+          );
+        } catch (voiceErr) {
+          logger.warn(
+            '[AI_CHAT]',
+            `Voice reply failed in ${msg.chat}; sending text: ${voiceErr.message}`
+          );
+          try {
+            await msg.reply(finalReply);
+          } catch {
+            await msg.send(finalReply);
+          }
+        }
+      } else {
+        try {
+          await msg.reply(finalReply);
+        } catch (sendErr) {
+          logger.warn(
+            '[AI_CHAT]',
+            `Quoted reply failed in ${msg.chat}; sending without quote: ${sendErr.message}`
+          );
+          await msg.send(finalReply);
+        }
       }
 
       // Stop event propagation so commands/further handlers do not trigger
