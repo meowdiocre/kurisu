@@ -41,7 +41,7 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = ctx?.sessionId || process.env.SESSION_ID;
     if (!msg || !sessionId) {
-      return 'Reminder skill is not available in this chat.';
+      return 'Skill pengingat tidak tersedia di chat ini.';
     }
 
     const result = await createReminder({
@@ -57,27 +57,27 @@ export default defineSkill({
 
     if (!result.ok) {
       if (result.error === 'limit') {
-        return 'The user already reached the active reminder limit.';
+        return 'User sudah mencapai batas pengingat aktif.';
       }
       if (result.error === 'invalid_schedule') {
-        return 'Invalid schedule format. Use a supported example.';
+        return 'Format jadwal tidak valid. Gunakan contoh yang didukung.';
       }
       if (result.error === 'invalid_message') {
-        return `Reminder message must be 1-${MAX_REMINDER_MESSAGE_LENGTH} characters.`;
+        return `Pesan pengingat harus 1-${MAX_REMINDER_MESSAGE_LENGTH} karakter.`;
       }
       if (result.error === 'invalid_call_seconds') {
-        return 'Invalid miscall duration. Use 1-30 seconds.';
+        return 'Durasi miscall tidak valid. Gunakan 1-30 detik.';
       }
       if (result.error === 'call_requires_pn') {
-        return 'Miscall requires a phone-number JID, not a LID.';
+        return 'Miscall butuh JID nomor telepon, bukan LID.';
       }
-      return 'Failed to create the reminder.';
+      return 'Gagal membuat pengingat.';
     }
 
     const reminder = result.reminder;
     const callDetail = reminder.call_seconds
-      ? ` Miscall: ${reminder.call_seconds}s.`
+      ? ` Miscall: ${reminder.call_seconds} detik.`
       : '';
-    return `Reminder scheduled. Next trigger: ${formatReminderTime(reminder)}.${callDetail} Reply to the user naturally in ${KURISU.name}'s voice, in one short sentence. Do not mention the id or technical fields unless the user asks.`;
+    return `Pengingat dijadwalkan. Berikutnya: ${formatReminderTime(reminder)}.${callDetail} Balas user natural dengan gaya ${KURISU.name}, satu kalimat pendek. Jangan sebut id atau field teknis kecuali user minta.`;
   },
 });

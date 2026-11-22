@@ -9,9 +9,9 @@ import {
 } from '#app/services/note.js';
 import {
   getNoteSkillSession,
-  isGroupAdmin,
   quotedNoteText,
 } from './note-context.js';
+import { isGroupAdmin } from '#app/utils/roles.js';
 
 export default defineSkill({
   name: 'save_note',
@@ -41,24 +41,24 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = getNoteSkillSession(ctx);
     if (!msg || !sessionId) {
-      return 'Notes are not available in this chat.';
+      return 'Catatan tidak tersedia di chat ini.';
     }
 
     const scope = String(args?.scope || '').toLowerCase();
     if (scope !== 'personal' && scope !== 'group') {
-      return 'Scope must be "personal" or "group".';
+      return 'Scope harus "personal" atau "group".';
     }
 
     const name = normalizeNoteName(args?.name);
     if (!name) {
-      return `Invalid note name. Use letters, numbers, hyphen, or underscore, maximum ${MAX_NOTE_NAME_LENGTH} characters.`;
+      return `Nama catatan tidak valid. Gunakan huruf, angka, strip, atau underscore, maksimal ${MAX_NOTE_NAME_LENGTH} karakter.`;
     }
 
     let content = String(args?.content || '').trim();
 
     if (scope === 'personal' && msg.flags?.isGroup) {
       if (!msg.quoted) {
-        return 'Personal notes in a group can only be saved by replying to a message.';
+        return 'Catatan personal di grup hanya bisa disimpan dengan reply pesan.';
       }
       content = quotedNoteText(msg);
     } else if (!content) {
@@ -66,15 +66,15 @@ export default defineSkill({
     }
 
     if (!content) {
-      return `Note content is required, maximum ${MAX_NOTE_CONTENT_LENGTH} characters.`;
+      return `Isi catatan wajib diisi, maksimal ${MAX_NOTE_CONTENT_LENGTH} karakter.`;
     }
 
     if (scope === 'group') {
       if (!msg.flags?.isGroup) {
-        return 'Group notes can only be saved in a group chat.';
+        return 'Catatan grup hanya bisa disimpan di chat grup.';
       }
       if (!isGroupAdmin(msg)) {
-        return 'Only group admins can save group notes.';
+        return 'Hanya admin grup yang bisa menyimpan catatan grup.';
       }
     }
 
@@ -91,16 +91,16 @@ export default defineSkill({
     if (!result.ok) {
       switch (result.error) {
         case 'reserved_name':
-          return `"${name}" is a reserved subcommand name. Choose another note name.`;
+          return `"${name}" adalah nama subcommand yang dipakai. Pilih nama lain.`;
         case 'invalid_content':
-          return `Note content is required, maximum ${MAX_NOTE_CONTENT_LENGTH} characters.`;
+          return `Isi catatan wajib diisi, maksimal ${MAX_NOTE_CONTENT_LENGTH} karakter.`;
         case 'limit':
-          return `The ${scope} note limit has been reached (${scope === 'group' ? MAX_GROUP_NOTES : MAX_PERSONAL_NOTES}). Delete a note first.`;
+          return `Batas catatan ${scope} sudah tercapai (${scope === 'group' ? MAX_GROUP_NOTES : MAX_PERSONAL_NOTES}). Hapus catatan dulu.`;
         default:
-          return 'Failed to save the note.';
+          return 'Gagal menyimpan catatan.';
       }
     }
 
-    return `${result.created ? 'Saved' : 'Updated'} ${scope} note "${result.note.name}".`;
+    return `${result.created ? 'Disimpan' : 'Diperbarui'} catatan ${scope} "${result.note.name}".`;
   },
 });

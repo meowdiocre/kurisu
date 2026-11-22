@@ -1,58 +1,9 @@
-import db from '@kurisu/core/services/database';
-import { DateTime } from 'luxon';
 import { defineSkill } from '#app/services/ai/skill.js';
 import { extractMentionsFromText } from '#app/services/bot/index.js';
+import { findGroupMember } from '#app/services/group-member.js';
 import { normalizeIdentity } from '#app/utils/target.js';
-
-/**
- * Format a database timestamp for a member summary.
- *
- * @param {string | Date | null | undefined} value
- * @returns {string}
- */
-function relativeTime(value) {
-  if (!value) return 'never';
-  const dt =
-    value instanceof Date
-      ? DateTime.fromJSDate(value, { zone: 'utc' })
-      : DateTime.fromSQL(String(value), { zone: 'utc' });
-  if (!dt.isValid) return 'never';
-  return dt.setLocale('id').toRelative() || dt.toFormat('dd LLL yyyy');
-}
-
-/**
- * Find a group member record by resolved identities.
- *
- * @param {string} groupId
- * @param {any} target
- * @returns {Promise<Record<string, any> | null>}
- */
-async function findMember(groupId, target) {
-  if (!groupId || !target) return null;
-
-  const candidates = new Set();
-  for (const value of [target.pn, target.lid, ...(target.jids || [])]) {
-    if (!value) continue;
-    candidates.add(value);
-    if (String(value).includes('@')) {
-      candidates.add(String(value).split('@')[0]);
-    } else {
-      candidates.add(`${value}@s.whatsapp.net`);
-      candidates.add(`${value}@lid`);
-    }
-  }
-
-  if (candidates.size === 0) return null;
-
-  return db('group_members')
-    .where('group_id', groupId)
-    .where((builder) => {
-      builder
-        .whereIn('user_pn', [...candidates])
-        .orWhereIn('user_lid', [...candidates]);
-    })
-    .first();
-}
+import { isGroupAdmin } from '#app/utils/roles.js';
+import { formatRelativeTime } from '#app/utils/time.js';
 
 export default defineSkill({
   name: 'get_member_info',
@@ -72,29 +23,25 @@ export default defineSkill({
   async execute(args, context) {
     const { msg, ctx } = context || {};
     if (!msg?.flags?.isGroup) {
-      return 'This is not a group chat.';
+      return 'Ini bukan chat grup.';
     }
 
     const tableGroup = ctx?.tableGroup;
     const groupId = tableGroup?.id || msg.chat;
-    const senderIsAdmin = Boolean(
-      msg.permissions?.sender?.admin ||
-      msg.permissions?.sender?.superAdmin ||
-      msg.permissions?.sender?.isOwner
-    );
+    const senderIsAdmin = isGroupAdmin(msg);
     const mode = args?.target || 'self';
 
     if (mode !== 'self' && !senderIsAdmin) {
-      return 'Only group admins can read another member record.';
+      return 'Hanya admin grup yang bisa membaca data member lain.';
     }
 
     let member = null;
-    let targetLabel = 'you';
+    let targetLabel = 'kamu';
 
     if (mode === 'self') {
       member = ctx?.tableGroupMember || null;
       if (!member) {
-        member = await findMember(groupId, {
+        member = await findGroupMember(groupId, {
           pn: msg.sender?.pn,
           lid: msg.sender?.lid,
           jids: [msg.sender?.id].filter(Boolean),
@@ -106,7 +53,7 @@ export default defineSkill({
       if (mode === 'replied') {
         const quotedSender = msg.quoted?.sender;
         if (!quotedSender) {
-          return 'No quoted message was found.';
+          return 'Tidak ada pesan yang di-reply.';
         }
         target = {
           pn: quotedSender.pn || null,
@@ -120,7 +67,7 @@ export default defineSkill({
           msg.body?.mentionedJid?.[0] ||
           extractMentionsFromText(msg.body?.rawText || '')[0];
         if (!mention) {
-          return 'No mentioned member was found.';
+          return 'Tidak ada member yang di-tag.';
         }
         const identity = normalizeIdentity(mention);
         target = {
@@ -130,12 +77,12 @@ export default defineSkill({
         };
       }
 
-      member = await findMember(groupId, target);
+      member = await findGroupMember(groupId, target);
       targetLabel =
         member?.pushname ||
         target.pn?.split('@')[0] ||
         target.lid?.split('@')[0] ||
-        'that member';
+        'member itu';
     }
 
     if (!member) {
@@ -148,8 +95,8 @@ export default defineSkill({
       `Nama: ${name}`,
       `Peringatan: ${Number(member.warnings || 0)}/${maxWarn}`,
       `Skor: ${Number(member.score || 0)}`,
-      `Terakhir diperingatkan: ${relativeTime(member.last_warned_at)}`,
-      `Terakhir aktif: ${relativeTime(member.last_interacted_at)}`,
+      `Terakhir diperingatkan: ${formatRelativeTime(member.last_warned_at, 'belum pernah')}`,
+      `Terakhir aktif: ${formatRelativeTime(member.last_interacted_at, 'belum pernah')}`,
     ].join('\n');
   },
 });

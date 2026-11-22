@@ -16,7 +16,7 @@ function participantLabel(participant) {
   if (name) return name;
 
   const raw = participant?.phoneNumber || participant?.jid || participant?.lid;
-  if (!raw) return 'unknown';
+  if (!raw) return 'tidak diketahui';
   return `@${String(raw).split('@')[0]}`;
 }
 
@@ -31,7 +31,7 @@ export default defineSkill({
   async execute(args, context) {
     const { client, msg, ctx } = context || {};
     if (!msg || !msg.flags?.isGroup) {
-      return 'This is not a group chat.';
+      return 'Ini bukan chat grup.';
     }
 
     const metadata = await getGroupMetadata(client, msg.chat).catch(() => null);

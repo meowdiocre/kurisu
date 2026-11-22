@@ -5,9 +5,9 @@ import {
 } from '#app/services/note.js';
 import {
   getNoteSkillSession,
-  isGroupAdmin,
   validateNoteReadScope,
 } from './note-context.js';
+import { isGroupAdmin } from '#app/utils/roles.js';
 
 export default defineSkill({
   name: 'delete_note',
@@ -33,7 +33,7 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = getNoteSkillSession(ctx);
     if (!msg || !sessionId) {
-      return 'Notes are not available in this chat.';
+      return 'Catatan tidak tersedia di chat ini.';
     }
 
     const scopeCheck = validateNoteReadScope(args?.scope, msg);
@@ -41,11 +41,11 @@ export default defineSkill({
     const scope = scopeCheck.scope;
 
     if (scope === 'group' && !isGroupAdmin(msg)) {
-      return 'Only group admins can delete group notes.';
+      return 'Hanya admin grup yang bisa menghapus catatan grup.';
     }
 
     const name = normalizeNoteName(args?.name);
-    if (!name) return 'Invalid note name.';
+    if (!name) return 'Nama catatan tidak valid.';
 
     const deleted = await deleteNote({
       sessionId,
@@ -56,7 +56,7 @@ export default defineSkill({
     });
 
     return deleted
-      ? `Deleted ${scope} note "${name}".`
-      : `Note "${name}" not found.`;
+      ? `Catatan ${scope} "${name}" dihapus.`
+      : `Catatan "${name}" tidak ditemukan.`;
   },
 });

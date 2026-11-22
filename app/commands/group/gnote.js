@@ -17,18 +17,7 @@ import {
   splitNoteArgs,
   splitNoteSaveInput,
 } from '#app/utils/note-input.js';
-
-/**
- * @param {any} msg
- * @returns {boolean}
- */
-function isGroupAdmin(msg) {
-  return Boolean(
-    msg?.permissions?.sender?.admin ||
-      msg?.permissions?.sender?.superAdmin ||
-      msg?.permissions?.sender?.isOwner
-  );
-}
+import { isGroupAdmin } from '#app/utils/roles.js';
 
 export default defineCommand({
   name: 'gnote',

@@ -23,7 +23,7 @@ export default defineSkill({
   async execute(args, context) {
     const { client, msg, payload } = context || {};
     if (!msg || !client?.message?.send) {
-      return 'Sticker skill is not available in this chat.';
+      return 'Skill stiker tidak tersedia di chat ini.';
     }
 
     const text = typeof args?.text === 'string' ? args.text.trim() : '';
@@ -37,7 +37,7 @@ export default defineSkill({
     const sticker = await createSticker({ msg, text, url });
 
     if (!sticker) {
-      return 'No image or video was found. Ask the user to send or reply to a photo/video, or provide a valid media URL.';
+      return 'Gambar atau video tidak ditemukan. Minta user kirim/reply foto atau video, atau beri URL media yang valid.';
     }
 
     await client.message.send(
@@ -49,6 +49,6 @@ export default defineSkill({
       { quote: payload }
     );
 
-    return 'Sticker sent successfully.';
+    return 'Stiker sudah dikirim.';
   },
 });

@@ -1,4 +1,5 @@
 import { applyGroupWarning } from '#app/services/group-warning.js';
+import { isGroupAdmin } from '#app/utils/roles.js';
 
 /**
  * Warns members who mention the group status (story) in a message.
@@ -15,16 +16,13 @@ export default async function groupStatusMiddleware(payload, ctx) {
   if (msg.body.mtype === 'groupStatusMentionMessage') {
     if (msg.flags.fromMe) return;
 
-    const permissions = msg.permissions;
-    if (
-      permissions?.sender?.isOwner ||
-      permissions?.sender?.admin ||
-      permissions?.sender?.superAdmin
-    ) {
+    if (isGroupAdmin(msg)) {
       return;
     }
 
-    if (!permissions?.bot?.admin && !permissions?.bot?.superAdmin) return;
+    if (!msg.permissions?.bot?.admin && !msg.permissions?.bot?.superAdmin) {
+      return;
+    }
 
     await applyGroupWarning({
       client,

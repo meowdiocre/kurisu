@@ -62,7 +62,7 @@ export function getSkillDefinitions() {
 export async function executeSkill(name, rawArgs, context) {
   const skill = skillMap.get(name);
   if (!skill) {
-    return `Skill "${name}" is not available.`;
+    return `Skill "${name}" tidak tersedia.`;
   }
 
   let args = {};
@@ -72,7 +72,7 @@ export async function executeSkill(name, rawArgs, context) {
     try {
       args = JSON.parse(rawArgs);
     } catch {
-      return `Skill "${name}" received invalid arguments.`;
+      return `Skill "${name}" menerima argumen tidak valid.`;
     }
   }
 
@@ -80,7 +80,7 @@ export async function executeSkill(name, rawArgs, context) {
     return await skill.execute(args, context);
   } catch (err) {
     logger.error('[AI_SKILL]', `Skill "${name}" failed: ${err.message}`);
-    return `Skill "${name}" failed to execute.`;
+    return `Skill "${name}" gagal dijalankan.`;
   }
 }
 

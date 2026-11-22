@@ -1,4 +1,5 @@
 import { defineSkill } from '#app/services/ai/skill.js';
+import { isOwner } from '#app/utils/roles.js';
 import logger from '@kurisu/core/utils/logger';
 import {
   DEFAULT_CALL_SECONDS,
@@ -33,11 +34,11 @@ export default defineSkill({
   async execute(args, context) {
     const { client, msg } = context || {};
     if (!msg || !client?.voip?.startCall) {
-      return 'Call skill is not available in this chat.';
+      return 'Skill panggilan tidak tersedia di chat ini.';
     }
 
-    if (!msg.permissions?.sender?.isOwner) {
-      return 'Owner only: miscall is restricted to bot owners.';
+    if (!isOwner(msg)) {
+      return 'Khusus owner: miscall hanya untuk owner bot.';
     }
 
     const targets = await resolveCallTargets(
@@ -46,22 +47,22 @@ export default defineSkill({
       typeof args?.target === 'string' ? args.target : ''
     );
     if (targets.length === 0) {
-      return 'No valid phone number was found. Ask the owner for a number or reply to the target message.';
+      return 'Nomor telepon valid tidak ditemukan. Minta owner memberi nomor atau reply pesan target.';
     }
 
     const seconds = normalizeCallSeconds(
       args?.seconds ?? DEFAULT_CALL_SECONDS
     );
     if (seconds === null) {
-      return `Duration must be 1-${MAX_CALL_SECONDS} seconds.`;
+      return `Durasi harus 1-${MAX_CALL_SECONDS} detik.`;
     }
 
     try {
       const { peerJid } = await placeMiscall(client, targets, seconds);
-      return `Rang ${peerJid} for ${seconds} seconds, then hung up.`;
+      return `${peerJid} dipanggil ${seconds} detik, lalu ditutup.`;
     } catch (err) {
       logger.error('[AI_SKILL]', `call_number failed: ${err.message}`);
-      return `Call failed: ${describeCallError(err)}`;
+      return `Panggilan gagal: ${describeCallError(err)}`;
     }
   },
 });

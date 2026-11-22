@@ -13,7 +13,7 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = ctx?.sessionId || process.env.SESSION_ID;
     if (!msg || !sessionId) {
-      return 'Reminder list is not available in this chat.';
+      return 'Daftar pengingat tidak tersedia di chat ini.';
     }
 
     const reminders = await listReminders({
@@ -26,12 +26,12 @@ export default defineSkill({
     }
 
     const lines = reminders.map((reminder) => {
-      const mode = reminder.mode === 'ai' ? 'AI' : 'static';
+      const mode = reminder.mode === 'ai' ? 'AI' : 'statis';
       const call = reminder.call_seconds
-        ? ` | miscall ${reminder.call_seconds}s`
+        ? ` | miscall ${reminder.call_seconds} detik`
         : '';
-      const status = reminder.status === 'paused' ? ' | paused' : '';
-      return `- id ${reminder.id}: ${reminder.schedule_text || reminder.frequency} | ${reminder.message} | ${mode}${call}${status} | next ${formatReminderTime(reminder)}`;
+      const status = reminder.status === 'paused' ? ' | dijeda' : '';
+      return `- id ${reminder.id}: ${reminder.schedule_text || reminder.frequency} | ${reminder.message} | ${mode}${call}${status} | berikutnya ${formatReminderTime(reminder)}`;
     });
 
     return ['Pengingat aktif:', ...lines].join('\n');

@@ -33,7 +33,7 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = getNoteSkillSession(ctx);
     if (!msg || !sessionId) {
-      return 'Notes are not available in this chat.';
+      return 'Catatan tidak tersedia di chat ini.';
     }
 
     const scopeCheck = validateNoteReadScope(args?.scope, msg);
@@ -41,7 +41,7 @@ export default defineSkill({
     const scope = scopeCheck.scope;
 
     const name = normalizeNoteName(args?.name);
-    if (!name) return 'Invalid note name.';
+    if (!name) return 'Nama catatan tidak valid.';
 
     const note = await getNote({
       sessionId,
@@ -52,14 +52,14 @@ export default defineSkill({
     });
 
     if (!note) {
-      return `Note "${name}" not found.`;
+      return `Catatan "${name}" tidak ditemukan.`;
     }
 
-    const lines = [`Note "${note.name}" (${scope})`];
+    const lines = [`Catatan "${note.name}" (${scope})`];
     if (scope === 'group') {
       lines.push(
-        `Author: ${note.author_name || 'unknown'}`,
-        `Updated: ${formatNoteTime(note)}`
+        `Penulis: ${note.author_name || 'tidak diketahui'}`,
+        `Diperbarui: ${formatNoteTime(note)}`
       );
     }
     lines.push('', note.content);

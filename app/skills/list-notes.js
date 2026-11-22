@@ -35,7 +35,7 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = getNoteSkillSession(ctx);
     if (!msg || !sessionId) {
-      return 'Notes are not available in this chat.';
+      return 'Catatan tidak tersedia di chat ini.';
     }
 
     const scopeCheck = validateNoteReadScope(args?.scope, msg);
@@ -54,15 +54,15 @@ export default defineSkill({
 
     if (notes.length === 0) {
       return query
-        ? `No ${scope} notes matched "${query}".`
-        : `No ${scope} notes found.`;
+        ? `Tidak ada catatan ${scope} yang cocok dengan "${query}".`
+        : `Belum ada catatan ${scope}.`;
     }
 
     const lines = notes.map(
       (note) =>
-        `- ${note.name}: ${formatNotePreview(note.content, 80)} (updated ${formatNoteTime(note)})`
+        `- ${note.name}: ${formatNotePreview(note.content, 80)} (diperbarui ${formatNoteTime(note)})`
     );
 
-    return [`${scope} notes (${notes.length}):`, ...lines].join('\n');
+    return [`Catatan ${scope} (${notes.length}):`, ...lines].join('\n');
   },
 });

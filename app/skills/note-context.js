@@ -9,18 +9,6 @@ export function getNoteSkillSession(ctx) {
 }
 
 /**
- * @param {any} msg
- * @returns {boolean}
- */
-export function isGroupAdmin(msg) {
-  return Boolean(
-    msg?.permissions?.sender?.admin ||
-      msg?.permissions?.sender?.superAdmin ||
-      msg?.permissions?.sender?.isOwner
-  );
-}
-
-/**
  * Validate a scope for read, list, or delete operations.
  *
  * @param {string} scope
@@ -31,15 +19,15 @@ export function validateNoteReadScope(scope, msg) {
   const normalized = String(scope || '').toLowerCase();
 
   if (normalized !== 'personal' && normalized !== 'group') {
-    return { error: 'Scope must be "personal" or "group".' };
+    return { error: 'Scope harus "personal" atau "group".' };
   }
 
   if (normalized === 'personal' && msg?.flags?.isGroup) {
-    return { error: 'Personal notes are only available in a private chat.' };
+    return { error: 'Catatan personal hanya tersedia di chat pribadi.' };
   }
 
   if (normalized === 'group' && !msg?.flags?.isGroup) {
-    return { error: 'Group notes are only available in their group.' };
+    return { error: 'Catatan grup hanya tersedia di grupnya.' };
   }
 
   return { scope: normalized };

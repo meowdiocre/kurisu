@@ -1,7 +1,9 @@
 import { defineCommand } from '#app/services/bot/index.js';
 import db from '@kurisu/core/services/database';
 import { resolveTarget } from '#app/utils/target.js';
-import { DateTime } from 'luxon';
+import { isGroupAdmin } from '#app/utils/roles.js';
+import { formatRelativeTime } from '#app/utils/time.js';
+import { findGroupMember } from '#app/services/group-member.js';
 
 /**
  * Konfigurasi field yang diizinkan untuk diedit oleh admin grup.
@@ -15,40 +17,6 @@ const ALLOWED_EDIT_FIELDS = {
   name: { type: 'string', column: 'pushname' },
   pushname: { type: 'string', column: 'pushname' },
 };
-
-const formatRelativeDate = (val) => {
-  if (!val) return '-';
-  try {
-    const dt =
-      typeof val === 'string'
-        ? DateTime.fromSQL(val, { zone: 'utc' })
-        : DateTime.fromJSDate(new Date(val), { zone: 'utc' });
-
-    if (!dt.isValid) return '-';
-    return (
-      dt.toRelative({ locale: 'id' }) || dt.toRelative({ locale: 'en' }) || '-'
-    );
-  } catch {
-    return '-';
-  }
-};
-
-/**
- * Query data member langsung dari database berdasarkan target
- */
-async function findGroupMember(groupId, { lid, pn }) {
-  if (!groupId || (!lid && !pn)) return null;
-
-  return db('group_members')
-    .where('group_id', groupId)
-    .where((qb) => {
-      const candidates = [];
-      if (lid) candidates.push(lid, `${lid}@lid`);
-      if (pn) candidates.push(pn, `${pn}@s.whatsapp.net`);
-      qb.whereIn('user_lid', candidates).orWhereIn('user_pn', candidates);
-    })
-    .first();
-}
 
 export default defineCommand({
   name: 'member',
@@ -68,11 +36,7 @@ export default defineCommand({
     const args = msg.body?.args || [];
     const subcommand = (args[0] || '').toLowerCase();
 
-    const isAdmin = Boolean(
-      msg.permissions?.sender?.admin ||
-      msg.permissions?.sender?.superAdmin ||
-      msg.permissions?.sender?.isOwner
-    );
+    const isAdmin = isGroupAdmin(msg);
 
     // ==========================================
     // 1. SUBCOMMAND: SET (Admin / Owner only)
@@ -224,7 +188,7 @@ export default defineCommand({
     const pnDisplay = member.user_pn ? `\`${member.user_pn}\`` : '-';
     const lidDisplay = member.user_lid ? `\`${member.user_lid}\`` : '-';
     const scoreDisplay = Number(member.score || 0).toLocaleString('id-ID');
-    const lastActiveDisplay = formatRelativeDate(member.last_interacted_at);
+    const lastActiveDisplay = formatRelativeTime(member.last_interacted_at);
 
     const lines = [
       '｢ *informasi member* ｣',

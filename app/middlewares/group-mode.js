@@ -1,3 +1,5 @@
+import { isGroupAdmin } from '#app/utils/roles.js';
+
 /**
  * Group bot access mode guard middleware.
  * Enforces group botAccess policy ('everyone' vs 'admin').
@@ -12,13 +14,7 @@ export default async function groupModeMiddleware(payload, ctx) {
 
   const botAccess = group.settings.botAccess || 'everyone';
   if (botAccess === 'admin') {
-    const hasAdminAccess = Boolean(
-      msg.permissions?.sender?.admin ||
-      msg.permissions?.sender?.superAdmin ||
-      msg.permissions?.sender?.isOwner
-    );
-
-    if (!hasAdminAccess) {
+    if (!isGroupAdmin(msg)) {
       return ctx.stop();
     }
   }

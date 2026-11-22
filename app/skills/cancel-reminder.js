@@ -37,7 +37,7 @@ export default defineSkill({
     const { msg, ctx } = context || {};
     const sessionId = ctx?.sessionId || process.env.SESSION_ID;
     if (!msg || !sessionId) {
-      return 'Reminder cancellation is not available in this chat.';
+      return 'Pembatalan pengingat tidak tersedia di chat ini.';
     }
 
     const id = Number(args?.id || 0);

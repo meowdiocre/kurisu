@@ -1,6 +1,7 @@
 import db from '@kurisu/core/services/database';
 import logger from '@kurisu/core/utils/logger';
 import { matchBlockedPatterns } from '#app/utils/pattern.js';
+import { isGroupAdmin } from '#app/utils/roles.js';
 
 /**
  * Group blocked words & link pattern guard middleware.
@@ -24,11 +25,7 @@ export default async function groupBlockwordsMiddleware(payload, ctx) {
   if (!Array.isArray(blockedWords) || blockedWords.length === 0) return;
 
   // Bypass for bot itself, group admins, and bot owners
-  const isSenderAdmin = Boolean(
-    msg.permissions?.sender?.admin ||
-    msg.permissions?.sender?.superAdmin ||
-    msg.permissions?.sender?.isOwner
-  );
+  const isSenderAdmin = isGroupAdmin(msg);
 
   if (isSenderAdmin || msg.flags.fromMe) return;
 
