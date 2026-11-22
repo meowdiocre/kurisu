@@ -1,6 +1,6 @@
 import os from 'os';
 import { defineCommand } from '#app/services/bot/index.js';
-import { formatFileSize } from '@nakiri/core/utils/common';
+import { formatFileSize } from '@kurisu/core/utils/common';
 
 /**
  * Format duration in seconds to human readable string (e.g. 1d 2h 30m 15s)

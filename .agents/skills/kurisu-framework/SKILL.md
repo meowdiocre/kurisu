@@ -1,17 +1,17 @@
 ---
-name: nakiri-framework
-description: Engineering rules, architectural guidelines, code patterns, and best practices for developing WhatsApp bot features, commands, middlewares, and events in the Nakiri framework.
+name: kurisu-framework
+description: Engineering rules, architectural guidelines, code patterns, and best practices for developing WhatsApp bot features, commands, middlewares, and events in the Kurisu framework.
 ---
 
-# Nakiri Framework Development Guide (Architecture v2)
+# Kurisu Framework Development Guide (Architecture v2)
 
-Use this skill whenever authoring, reviewing, modifying, or refactoring any code in the **Nakiri** WhatsApp bot project.
+Use this skill whenever authoring, reviewing, modifying, or refactoring any code in the **Kurisu** WhatsApp bot project.
 
 ---
 
 ## 1. Core Architectural Pillars
 
-Nakiri Architecture v2 separates concerns into clean, decoupled layers:
+Kurisu Architecture v2 separates concerns into clean, decoupled layers:
 
 1. **Native Event Gateways (`app/events/<eventName>.js`)**:
    - Exactly one gateway file per WhatsApp event (`message.js`, `group.js`, etc.).
@@ -40,7 +40,7 @@ Nakiri Architecture v2 separates concerns into clean, decoupled layers:
 ## 2. Hard Directives for AI Agents
 
 1. **Importing Core**:
-   - **MUST ALWAYS** use `@nakiri/core/...` package specifier (e.g., `import db from '@nakiri/core/services/database'`, `import { defineModule } from '@nakiri/core/services/modules'`).
+   - **MUST ALWAYS** use `@kurisu/core/...` package specifier (e.g., `import db from '@kurisu/core/services/database'`, `import { defineModule } from '@kurisu/core/services/modules'`).
    - ❌ Never use `#services/...`, `#utils/...`, or relative paths (`../../core/...`).
 2. **Importing Userland Modules**:
    - Use `#app/...` subpath imports (e.g., `import { runEventMiddlewares } from '#app/starts/kernel.js'`).
@@ -65,7 +65,7 @@ Create a new file in `app/commands/<category>/<name>.js`:
 ```javascript
 // app/commands/utility/ping.js
 import os from 'os'
-import { defineCommand } from '@nakiri/core/services/commands'
+import { defineCommand } from '@kurisu/core/services/commands'
 
 export default defineCommand({
   name: 'ping',
@@ -122,7 +122,7 @@ Create a handler in `app/middlewares/<name>.js`:
 ```javascript
 // app/middlewares/vip_only.js
 /**
- * @type {import('@nakiri/core/services/commands').CommandMiddlewareHandler}
+ * @type {import('@kurisu/core/services/commands').CommandMiddlewareHandler}
  */
 export default async function vipOnlyMiddleware(payload, ctx, args = []) {
   const isVip = ctx.tableGroupMember?.is_vip
@@ -157,7 +157,7 @@ Events are organized into subdirectories per WhatsApp event channel (`app/events
 
 ```javascript
 // app/events/call/index.js
-import { defineModule } from '@nakiri/core/services/modules'
+import { defineModule } from '@kurisu/core/services/modules'
 import { runEventMiddlewares } from '#app/starts/kernel.js'
 
 export default defineModule({

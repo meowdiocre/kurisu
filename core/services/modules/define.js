@@ -1,5 +1,5 @@
 /**
- * Helper function to define a Nakiri feature module with strong typing and autocompletion.
+ * Helper function to define a Kurisu feature module with strong typing and autocompletion.
  *
  * Returns the module definition directly at runtime without any mutations or overhead.
  *

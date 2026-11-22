@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import * as p from '@clack/prompts';
-import { dirApp } from '@nakiri/core/utils/path';
-import logger from '@nakiri/core/utils/logger';
+import { dirApp } from '@kurisu/core/utils/path';
+import logger from '@kurisu/core/utils/logger';
 import { defineCommand } from '../registry.js';
 
 /**
@@ -127,7 +127,7 @@ export const makeCommandCommand = defineCommand({
 
     if (!name || !category) {
       throw new Error(
-        'Category and name are required. Usage: node nakiri make:command <category> <name>'
+        'Category and name are required. Usage: node kurisu make:command <category> <name>'
       );
     }
 
@@ -207,7 +207,7 @@ export const makeMiddlewareCommand = defineCommand({
 
     if (!name) {
       throw new Error(
-        'Middleware name is required. Usage: node nakiri make:middleware <name>'
+        'Middleware name is required. Usage: node kurisu make:middleware <name>'
       );
     }
 
@@ -298,7 +298,7 @@ export const makeEventCommand = defineCommand({
 
     if (!name || !eventName) {
       throw new Error(
-        'Event channel and handler name are required. Usage: node nakiri make:event <event> <name>'
+        'Event channel and handler name are required. Usage: node kurisu make:event <event> <name>'
       );
     }
 
@@ -324,7 +324,7 @@ export const makeEventCommand = defineCommand({
       );
     }
 
-    const content = `import { defineModule } from '@nakiri/core/services/modules';
+    const content = `import { defineModule } from '@kurisu/core/services/modules';
 
 export default defineModule({
   name: '${cleanEvent}-${cleanName}',
@@ -375,7 +375,7 @@ export const makeServiceCommand = defineCommand({
 
     if (!name) {
       throw new Error(
-        'Service name is required. Usage: node nakiri make:service <name>'
+        'Service name is required. Usage: node kurisu make:service <name>'
       );
     }
 
@@ -394,7 +394,7 @@ export const makeServiceCommand = defineCommand({
       throw new Error(`Service file already exists: app/services/${fileName}`);
     }
 
-    const content = `import db from '@nakiri/core/services/database';
+    const content = `import db from '@kurisu/core/services/database';
 
 /**
  * Service: ${className}
@@ -438,7 +438,7 @@ export const makeUtilCommand = defineCommand({
 
     if (!name) {
       throw new Error(
-        'Utility name is required. Usage: node nakiri make:util <name>'
+        'Utility name is required. Usage: node kurisu make:util <name>'
       );
     }
 

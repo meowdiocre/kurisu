@@ -1,6 +1,6 @@
 import { defineCommand } from '#app/services/bot/index.js';
 import { createSticker } from '#app/services/sticker.js';
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 
 export default defineCommand({
   name: 'sticker',

@@ -1,5 +1,5 @@
-import db from '@nakiri/core/services/database';
-import logger from '@nakiri/core/utils/logger';
+import db from '@kurisu/core/services/database';
+import logger from '@kurisu/core/utils/logger';
 import { DateTime } from 'luxon';
 import { getContextInfo, toUserJid } from 'zapo-js';
 

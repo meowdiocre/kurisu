@@ -3,7 +3,7 @@ import webp from 'node-webpmux';
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { dirTemp } from '@nakiri/core/utils/path';
+import { dirTemp } from '@kurisu/core/utils/path';
 
 const getTmp = (ext) => {
   return path.join(

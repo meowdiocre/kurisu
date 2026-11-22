@@ -1,4 +1,4 @@
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 import stickerSkill from './sticker.js';
 import downloadMediaSkill from './download-media.js';
 import reminderSkill from './reminder.js';

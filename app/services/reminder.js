@@ -1,6 +1,6 @@
-import db from '@nakiri/core/services/database';
-import logger from '@nakiri/core/utils/logger';
-import { delay } from '@nakiri/core/utils/common';
+import db from '@kurisu/core/services/database';
+import logger from '@kurisu/core/utils/logger';
+import { delay } from '@kurisu/core/utils/common';
 import { DateTime } from 'luxon';
 import { composeReminderMessage } from '#app/services/ai/reminder.js';
 import { resolvePersonaModesWithClient } from '#app/services/ai/persona-mode.js';

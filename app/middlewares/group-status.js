@@ -5,7 +5,7 @@ import { applyGroupWarning } from '#app/services/group-warning.js';
  * Deletes the offending message, increments the warning counter, and kicks
  * the member once maxWarn is reached.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function groupStatusMiddleware(payload, ctx) {
   const { client, msg, tableGroup, tableGroupMember } = ctx;

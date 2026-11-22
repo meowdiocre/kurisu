@@ -119,7 +119,7 @@ export async function formatMenuText({
   }
 
   const header = [
-    `*NAKIRI BOT MENU*`,
+    `*KURISU BOT MENU*`,
     `Halo, *${userName}*!`,
     '',
     `Prefix: \`${cleanPrefix || 'None'}\` | Total: *${totalCommands}* fitur`,

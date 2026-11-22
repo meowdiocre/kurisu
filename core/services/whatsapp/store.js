@@ -3,8 +3,8 @@ import path from 'path';
 import { createStore } from 'zapo-js';
 import { createSqliteStore } from '@zapo-js/store-sqlite';
 import { createMysqlStore } from '@zapo-js/store-mysql';
-import env from '@nakiri/core/services/env';
-import { dirStorage } from '@nakiri/core/utils/path';
+import env from '@kurisu/core/services/env';
+import { dirStorage } from '@kurisu/core/utils/path';
 
 export function createWhatsAppStore() {
   const dbConnection = env.DB_CONNECTION || 'sqlite';

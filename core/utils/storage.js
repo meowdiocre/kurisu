@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { dirStorage, dirTemp } from '@nakiri/core/utils/path';
+import { dirStorage, dirTemp } from '@kurisu/core/utils/path';
 
 export class Storage {
   static async save(buffer, options = {}) {

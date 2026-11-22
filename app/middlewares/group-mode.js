@@ -2,7 +2,7 @@
  * Group bot access mode guard middleware.
  * Enforces group botAccess policy ('everyone' vs 'admin').
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function groupModeMiddleware(payload, ctx) {
   const msg = ctx.msg;

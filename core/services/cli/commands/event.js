@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import pc from 'picocolors';
-import moduleLoader from '@nakiri/core/services/modules';
-import { dirEvents } from '@nakiri/core/utils/path';
-import { defineCommand } from '@nakiri/core/services/cli/registry';
+import moduleLoader from '@kurisu/core/services/modules';
+import { dirEvents } from '@kurisu/core/utils/path';
+import { defineCommand } from '@kurisu/core/services/cli/registry';
 
 /**
  * Scan for hidden event files that start with '.'
@@ -102,7 +102,7 @@ export const eventListCommand = defineCommand({
       ? [targetFilter]
       : Array.from(eventChannels).sort();
 
-    console.log(pc.bold('\nNakiri Event Execution Pipeline:'));
+    console.log(pc.bold('\nKurisu Event Execution Pipeline:'));
     console.log(
       pc.dim(
         '========================================================================================'

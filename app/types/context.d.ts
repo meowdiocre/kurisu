@@ -8,7 +8,7 @@ import type { CommandDefinition } from '#app/services/bot/types.js'
  * Any properties attached to ctx by your middlewares or services should be declared here
  * to enjoy full IDE autocomplete and type safety across all commands and event handlers.
  */
-declare module '@nakiri/core/services/modules' {
+declare module '@kurisu/core/services/modules' {
   interface ModuleContext {
     /**
      * Normalized parsed message object (injected by message gateway)

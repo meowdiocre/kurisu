@@ -1,12 +1,12 @@
-import cache from '@nakiri/core/services/cache';
-import db from '@nakiri/core/services/database';
+import cache from '@kurisu/core/services/cache';
+import db from '@kurisu/core/services/database';
 import { DateTime } from 'luxon';
 
 /**
  * Debounced group member interaction scoring middleware.
  * Increments member score at most once every 10 minutes.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function groupScoreMiddleware(payload, ctx) {
   const msg = ctx.msg;

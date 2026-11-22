@@ -1,5 +1,5 @@
-import env from '@nakiri/core/services/env';
-import { dirStorage } from '@nakiri/core/utils/path';
+import env from '@kurisu/core/services/env';
+import { dirStorage } from '@kurisu/core/utils/path';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -28,7 +28,7 @@ export const getDatabaseConfig = () => {
         port: env.DB_PORT || 3306,
         user: env.DB_USER || 'root',
         password: env.DB_PASSWORD || '',
-        database: env.DB_DATABASE || 'nakiri',
+        database: env.DB_DATABASE || 'kurisu',
       },
       migrations: {
         directory: migrationDirs,

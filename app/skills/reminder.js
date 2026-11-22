@@ -1,4 +1,4 @@
-import { NAKIRI } from '#app/services/ai/persona.js';
+import { KURISU } from '#app/services/ai/persona.js';
 import { defineSkill } from '#app/services/ai/skill.js';
 import {
   MAX_REMINDER_MESSAGE_LENGTH,
@@ -25,7 +25,7 @@ export default defineSkill({
       ai: {
         type: 'boolean',
         description:
-          'Set true when the user wants Nakiri to rewrite the reminder naturally at delivery time instead of sending the exact static text.',
+          'Set true when the user wants Kurisu to rewrite the reminder naturally at delivery time instead of sending the exact static text.',
       },
       call_seconds: {
         type: 'integer',
@@ -78,6 +78,6 @@ export default defineSkill({
     const callDetail = reminder.call_seconds
       ? ` Miscall: ${reminder.call_seconds}s.`
       : '';
-    return `Reminder scheduled. Next trigger: ${formatReminderTime(reminder)}.${callDetail} Reply to the user naturally in ${NAKIRI.name}'s voice, in one short sentence. Do not mention the id or technical fields unless the user asks.`;
+    return `Reminder scheduled. Next trigger: ${formatReminderTime(reminder)}.${callDetail} Reply to the user naturally in ${KURISU.name}'s voice, in one short sentence. Do not mention the id or technical fields unless the user asks.`;
   },
 });

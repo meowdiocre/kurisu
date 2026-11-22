@@ -1,7 +1,7 @@
 import knex from 'knex';
-import env from '@nakiri/core/services/env';
+import env from '@kurisu/core/services/env';
 import { getDatabaseConfig } from './config.js';
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 
 const config = getDatabaseConfig()[env.DB_CONNECTION];
 if (!config) {

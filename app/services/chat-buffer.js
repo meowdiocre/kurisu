@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import db from '@nakiri/core/services/database';
-import logger from '@nakiri/core/utils/logger';
-import { dirTemp } from '@nakiri/core/utils/path';
+import db from '@kurisu/core/services/database';
+import logger from '@kurisu/core/utils/logger';
+import { dirTemp } from '@kurisu/core/utils/path';
 import { DateTime } from 'luxon';
 
 const WAL_FILE = dirTemp('chat_buffer.wal');

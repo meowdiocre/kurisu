@@ -4,7 +4,7 @@ import chatBuffer from '#app/services/chat-buffer.js';
  * Opt-in group message buffer middleware for AI summary.
  * Captures all text messages if the group has enabled aiSummary.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function groupRecorderMiddleware(payload, ctx) {
   const { msg, tableGroup } = ctx;

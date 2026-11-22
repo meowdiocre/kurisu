@@ -7,7 +7,7 @@ import type { DeviceConnectionStatus } from '../whatsapp/types.js'
 export type ZapoEventName = string & keyof WaClientEventMap
 
 /**
- * Custom application-level events emitted by Nakiri WhatsApp service
+ * Custom application-level events emitted by Kurisu WhatsApp service
  */
 export interface AppCustomEventPayloadMap {
   qr: string
@@ -22,7 +22,7 @@ export type AllEventPayloadMap = {
 } & AppCustomEventPayloadMap
 
 /**
- * Union of all known event names supported by Nakiri
+ * Union of all known event names supported by Kurisu
  */
 export type KnownEventName = string & keyof AllEventPayloadMap
 

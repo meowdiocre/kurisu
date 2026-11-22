@@ -1,5 +1,5 @@
-import cache from '@nakiri/core/services/cache';
-import db from '@nakiri/core/services/database';
+import cache from '@kurisu/core/services/cache';
+import db from '@kurisu/core/services/database';
 import { normalizeIdentity } from '#app/utils/target.js';
 
 const defaultGroupSettings = {
@@ -134,7 +134,7 @@ async function getTableGroupMember(
 /**
  * Group and member metadata loader middleware.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function groupMiddleware(payload, ctx) {
   const msg = ctx.msg;

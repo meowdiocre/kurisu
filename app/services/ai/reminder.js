@@ -1,4 +1,4 @@
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 import { DateTime } from 'luxon';
 import { createChatCompletion } from './client.js';
 import { buildReminderSystemPrompt } from './persona.js';

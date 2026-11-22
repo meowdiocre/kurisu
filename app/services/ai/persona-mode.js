@@ -1,4 +1,4 @@
-import cache from '@nakiri/core/services/cache';
+import cache from '@kurisu/core/services/cache';
 import { resolveContactIdentities } from '#app/utils/target.js';
 import {
   PERSONA_MODE_18,
@@ -78,10 +78,10 @@ export function resolvePersonaModesFromDigits(digits, tableBot) {
   if (candidates.size === 0) return [];
 
   const modes = [];
-  if (listMatches(candidates, tableBot.nakiri_girlfriend)) {
+  if (listMatches(candidates, tableBot.kurisu_girlfriend)) {
     modes.push(PERSONA_MODE_GIRLFRIEND);
   }
-  if (listMatches(candidates, tableBot.nakiri_18)) {
+  if (listMatches(candidates, tableBot.kurisu_18)) {
     modes.push(PERSONA_MODE_18);
   }
 
@@ -151,8 +151,8 @@ export async function resolvePersonaModesWithClient({
 }) {
   if (!tableBot) return [];
 
-  const girlfriend = normalizePersonaList(tableBot.nakiri_girlfriend);
-  const adult = normalizePersonaList(tableBot.nakiri_18);
+  const girlfriend = normalizePersonaList(tableBot.kurisu_girlfriend);
+  const adult = normalizePersonaList(tableBot.kurisu_18);
   if (girlfriend.length === 0 && adult.length === 0) return [];
 
   const direct = resolvePersonaModes({ sender, tableBot });

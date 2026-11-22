@@ -6,8 +6,8 @@ import {
   downloadMediaMessage,
   resolveMediaPayload,
 } from 'zapo-js';
-import cache from '@nakiri/core/services/cache';
-import { extractText, extractMentions } from '@nakiri/core/utils/message';
+import cache from '@kurisu/core/services/cache';
+import { extractText, extractMentions } from '@kurisu/core/utils/message';
 import { isCommand, validateCommand } from './command.js';
 import { getTableBot } from '#app/middlewares/bot-table.js';
 

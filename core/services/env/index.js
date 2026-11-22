@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { envSchema } from '@nakiri/core/services/env/schema';
-import logger from '@nakiri/core/utils/logger';
+import { envSchema } from '@kurisu/core/services/env/schema';
+import logger from '@kurisu/core/utils/logger';
 const _env = envSchema.safeParse(process.env);
 if (!_env.success) {
   logger.error('[ENV]', 'Invalid environment variables.');

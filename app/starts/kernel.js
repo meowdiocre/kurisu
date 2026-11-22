@@ -3,7 +3,7 @@
  *
  * Scoped middlewares execute in declaration order when a native WhatsApp event occurs.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddlewaresConfig}
+ * @type {import('@kurisu/core/services/modules').EventMiddlewaresConfig}
  */
 export const eventMiddlewares = {
   message: [
@@ -17,7 +17,7 @@ export const eventMiddlewares = {
     () => import('#app/middlewares/group-status.js'),
     () => import('#app/middlewares/group-recorder.js'),
     () => import('#app/middlewares/group-mode.js'),
-    () => import('#app/middlewares/nakiri-chat.js'),
+    () => import('#app/middlewares/kurisu-chat.js'),
   ],
 };
 

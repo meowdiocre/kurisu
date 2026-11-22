@@ -6,14 +6,14 @@ import type {
 } from './types.js'
 
 /**
- * Helper to define a Nakiri feature module with automatic type inference and IDE auto-completion.
+ * Helper to define a Kurisu feature module with automatic type inference and IDE auto-completion.
  *
  * The `payload` and `context` types in `execute()` dynamically follow the specified `event` or `events`.
  * If neither is specified, it defaults to the `'message'` event.
  *
  * @example
  * ```javascript
- * import { defineModule } from '@nakiri/core/services/modules';
+ * import { defineModule } from '@kurisu/core/services/modules';
  *
  * export default defineModule({
  *   event: 'message',

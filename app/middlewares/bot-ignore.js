@@ -5,7 +5,7 @@ import { getCommand } from '#app/services/bot/registry.js';
  * Filter unwanted messages (broadcasts, newsletters, system stubs)
  * and parse native payload into ctx.msg.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function ignoreMiddleware(payload, ctx) {
   const key = payload?.key;

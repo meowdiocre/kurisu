@@ -1,5 +1,5 @@
-import { formatFileSize } from '@nakiri/core/utils/common';
-import logger from '@nakiri/core/utils/logger';
+import { formatFileSize } from '@kurisu/core/utils/common';
+import logger from '@kurisu/core/utils/logger';
 import { defineSkill } from '#app/services/ai/skill.js';
 import { downloadMedia } from '#app/services/downloader-media.js';
 

@@ -1,4 +1,4 @@
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 import { searchWeb } from '#app/services/ai/tools/search.js';
 
 export const AI_TOOLS_DEFINITIONS = [

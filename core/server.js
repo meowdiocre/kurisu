@@ -1,24 +1,24 @@
 import * as p from '@clack/prompts';
 import qrcode from 'qrcode-terminal';
-import env from '@nakiri/core/services/env';
-import logger from '@nakiri/core/utils/logger';
-import { Storage } from '@nakiri/core/utils/storage';
-import { initDirectories } from '@nakiri/core/utils/path';
+import env from '@kurisu/core/services/env';
+import logger from '@kurisu/core/utils/logger';
+import { Storage } from '@kurisu/core/utils/storage';
+import { initDirectories } from '@kurisu/core/utils/path';
 import {
   createWhatsAppStore,
   WhatsAppEventBus,
   sessionLogger,
   SessionManager,
-} from '@nakiri/core/services/whatsapp';
-import { initDatabase, closeDatabase } from '@nakiri/core/services/database';
-import moduleLoader from '@nakiri/core/services/modules';
+} from '@kurisu/core/services/whatsapp';
+import { initDatabase, closeDatabase } from '@kurisu/core/services/database';
+import moduleLoader from '@kurisu/core/services/modules';
 
 export const bootScreen = () => {
   console.clear();
 };
 
 /**
- * Start the Nakiri WhatsApp Bot server runtime.
+ * Start the Kurisu WhatsApp Bot server runtime.
  * @returns {Promise<{ sessionManager: SessionManager, store: any, events: WhatsAppEventBus }>}
  */
 export const startServer = async () => {
@@ -26,7 +26,7 @@ export const startServer = async () => {
   try {
     initDirectories();
     await Storage.clearTmp();
-    logger.info('[SYSTEM]', 'Nakiri is starting...');
+    logger.info('[SYSTEM]', 'Kurisu is starting...');
 
     // Initialize Database Connection
     await initDatabase();
@@ -128,7 +128,7 @@ export const startServer = async () => {
 
     // Graceful shutdown
     const handleShutdown = async () => {
-      logger.info('[SYSTEM]', 'Shutting down Nakiri...');
+      logger.info('[SYSTEM]', 'Shutting down Kurisu...');
       await sessionManager.destroy();
       await closeDatabase();
       process.exit(0);

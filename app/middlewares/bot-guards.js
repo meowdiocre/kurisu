@@ -1,5 +1,5 @@
 /**
- * Standard command middleware guards for Nakiri bot.
+ * Standard command middleware guards for Kurisu bot.
  */
 
 /**

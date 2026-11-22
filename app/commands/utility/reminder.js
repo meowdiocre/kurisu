@@ -85,7 +85,7 @@ export default defineCommand({
           `• \`${cmd} resume <id>\``,
           `• \`${cmd} del <id>\``,
           '',
-          `_Flag \`--ai\` membuat pesan dirapikan Nakiri. \`--call=N\` miscall N detik dulu, lalu kirim pesan._`,
+          `_Flag \`--ai\` membuat pesan dirapikan Kurisu. \`--call=N\` miscall N detik dulu, lalu kirim pesan._`,
           `_Di grup, \`--call\` mengirim pesan ke DM pembuat, bukan ke grup._`,
         ].join('\n')
       );
@@ -234,7 +234,7 @@ export default defineCommand({
         `• Jadwal: \`${reminder.schedule_text}\``,
         `• Pesan: ${reminder.message}`,
         `• Berikutnya: \`${formatReminderTime(reminder)}\``,
-        `• Mode: \`${reminder.mode === 'ai' ? 'AI Nakiri' : 'static'}\``,
+        `• Mode: \`${reminder.mode === 'ai' ? 'AI Kurisu' : 'static'}\``,
         ...(reminder.call_seconds
           ? [`• Miscall: \`${reminder.call_seconds} detik\``]
           : []),

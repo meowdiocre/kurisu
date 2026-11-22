@@ -1,14 +1,14 @@
-import cache from '@nakiri/core/services/cache';
+import cache from '@kurisu/core/services/cache';
 import chatBuffer from '#app/services/chat-buffer.js';
 import { DateTime } from 'luxon';
 import {
-  NAKIRI,
-  NAKIRI_LEAK_SIGNATURES,
+  KURISU,
+  KURISU_LEAK_SIGNATURES,
   buildChatSystemPrompt,
 } from './persona.js';
 
 // ============================================================
-// NAKIRI AI CHAT - RUNTIME CONFIGURATION
+// KURISU AI CHAT - RUNTIME CONFIGURATION
 // ============================================================
 export const AI_CONFIG = {
   // Maximum dialog turns remembered in one chat session
@@ -97,7 +97,7 @@ export function sanitizeAiResponse(text) {
   if (!text) return '';
 
   const lower = text.toLowerCase();
-  const hasLeak = NAKIRI_LEAK_SIGNATURES.some((signature) =>
+  const hasLeak = KURISU_LEAK_SIGNATURES.some((signature) =>
     lower.includes(signature)
   );
 
@@ -114,7 +114,7 @@ export function sanitizeAiResponse(text) {
   return text;
 }
 
-const dialogCache = cache.namespace('nakiri_ai_dialog');
+const dialogCache = cache.namespace('kurisu_ai_dialog');
 
 /**
  * Truncate text to a hard character limit.
@@ -243,7 +243,7 @@ export async function buildCommandCatalog(prefixes = []) {
   const menuCommand = `${displayPrefixes[0]}menu`;
 
   return [
-    `[REFERENSI COMMAND ${NAKIRI.name.toUpperCase()}]`,
+    `[REFERENSI COMMAND ${KURISU.name.toUpperCase()}]`,
     `Prefix aktif: ${displayPrefixes.map((prefix) => `\`${prefix}\``).join(', ')}`,
     `Kalau user tanya command, menu, atau cara pakai fitur bot, arahkan ke \`${menuCommand}\`. Jangan menyebut command satu per satu.`,
     'Kalau user tanya kemampuan, jawab dari skill dengan bahasa sendiri secara singkat.',

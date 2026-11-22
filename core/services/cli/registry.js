@@ -1,6 +1,6 @@
 import pc from 'picocolors';
-import logger from '@nakiri/core/utils/logger';
-import { runStarts } from '@nakiri/core/services/starts/runner.js';
+import logger from '@kurisu/core/utils/logger';
+import { runStarts } from '@kurisu/core/services/starts/runner.js';
 
 /**
  * @typedef {object} CommandDefinition
@@ -132,7 +132,7 @@ export class CliRegistry {
    * Print formatted help text with commands grouped by category.
    */
   printHelp() {
-    console.log(pc.bold('\nNakiri CLI Engine:'));
+    console.log(pc.bold('\nKurisu CLI Engine:'));
     console.log(
       pc.dim(
         '=================================================================='
@@ -150,7 +150,7 @@ export class CliRegistry {
       console.log(pc.bold(`\n  ${category.toUpperCase()}`));
       for (const cmd of cmds) {
         const usage = cmd.usage || cmd.name;
-        const padded = `node nakiri ${usage}`.padEnd(42, ' ');
+        const padded = `node kurisu ${usage}`.padEnd(42, ' ');
         console.log(`    ${pc.cyan(padded)} ${pc.dim(cmd.description || '')}`);
       }
     }

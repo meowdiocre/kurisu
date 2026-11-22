@@ -1,5 +1,5 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 
 const INVITE_REGEX =
   /(?:https?:\/\/)?(?:chat\.whatsapp\.com\/)?([0-9A-Za-z]{20,24})/i;

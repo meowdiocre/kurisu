@@ -1,6 +1,6 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import { stickerToImage, stickerToVideo } from '@nakiri/core/utils/converter';
-import logger from '@nakiri/core/utils/logger';
+import { stickerToImage, stickerToVideo } from '@kurisu/core/utils/converter';
+import logger from '@kurisu/core/utils/logger';
 
 export default defineCommand({
   name: 'toimg',

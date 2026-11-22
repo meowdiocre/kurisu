@@ -1,5 +1,5 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
+import db from '@kurisu/core/services/database';
 import { isLidJid, toUserJid } from 'zapo-js';
 
 const cleanDigits = (/** @type {string} */ val) =>

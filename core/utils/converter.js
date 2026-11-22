@@ -2,8 +2,8 @@ import ff from 'fluent-ffmpeg';
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { dirTemp, dirCore, dirStorage } from '@nakiri/core/utils/path';
-import logger from '@nakiri/core/utils/logger';
+import { dirTemp, dirCore, dirStorage } from '@kurisu/core/utils/path';
+import logger from '@kurisu/core/utils/logger';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 

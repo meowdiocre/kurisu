@@ -1,14 +1,14 @@
-# Nakiri Architecture & Engineering Guidelines (`AGENTS.md`)
+# Kurisu Architecture & Engineering Guidelines (`AGENTS.md`)
 
-Dokumen ini adalah pedoman arsitektur dan standar rekayasa software untuk bot **Nakiri (Architecture v2)**. Setiap agen AI dan developer yang berkontribusi pada repositori ini **WAJIB** tunduk pada prinsip di bawah ini tanpa pengecualian.
+Dokumen ini adalah pedoman arsitektur dan standar rekayasa software untuk bot **Kurisu (Architecture v2)**. Setiap agen AI dan developer yang berkontribusi pada repositori ini **WAJIB** tunduk pada prinsip di bawah ini tanpa pengecualian.
 
 > [!IMPORTANT]
 >
 > ### 🚨 Mandatory Directives for AI Agents:
 >
-> 1. **Panggilan ke Core WAJIB Melalui `@nakiri/core`:**
+> 1. **Panggilan ke Core WAJIB Melalui `@kurisu/core`:**
 >    - Jangan pernah menggunakan alias `#` (`#services/...`, `#utils/...`, dll) ataupun path relatif antar-layer (`../../core/...`) untuk modul core.
->    - Semua berkas (baik di dalam `app/`, root `nakiri.js`, maupun antar-berkas di dalam `core/`) **HARUS SELALU** mengimpor dari `@nakiri/core/...`.
+>    - Semua berkas (baik di dalam `app/`, root `kurisu.js`, maupun antar-berkas di dalam `core/`) **HARUS SELALU** mengimpor dari `@kurisu/core/...`.
 > 2. **Pesan Log, Error, dan Deskripsi WAJIB Bahasa Inggris (100% English):**
 >    - Seluruh logging (`logger.info`, `logger.warn`, `logger.error`, `logger.debug`), exception error (`throw new Error(...)`), dan atribut `description` modul/command **HARUS menggunakan Bahasa Inggris baku**. DILARANG mencampurkan Bahasa Indonesia pada pesan teknis atau log terminal.
 > 3. **Batasan Mutlak Direktori `core/` (Engine Core Boundary):**
@@ -65,8 +65,8 @@ Dokumen ini adalah pedoman arsitektur dan standar rekayasa software untuk bot **
 ## 2. Struktur Direktori Aplikasi (`app/`)
 
 ```text
-nakiri/
-├── core/                         # Engine & Framework (@nakiri/core package - Pure Agnostic)
+kurisu/
+├── core/                         # Engine & Framework (@kurisu/core package - Pure Agnostic)
 │   ├── services/                 # Core engine (whatsapp, database, env, modules, cli, starts, cache)
 │   └── utils/                    # Pure helpers (logger, path, storage, common, dll)
 ├── app/                          # Userland Application Logic
@@ -97,7 +97,7 @@ nakiri/
 │   │   └── owner.js              # Owner management service
 │   └── database/                 # Migrations & Seeds
 ├── storage/                      # SQLite DB, session WhatsApp, temp storage
-├── nakiri.js                     # Centralized Nakiri CLI runner
+├── kurisu.js                     # Centralized Kurisu CLI runner
 └── AGENTS.md                     # This document
 ```
 
@@ -106,11 +106,11 @@ nakiri/
 ## 3. Konvensi Import Alias
 
 1. **Memanggil Core:**
-   - **WAJIB** menggunakan package specifier `@nakiri/core/...`.
-   - ✅ `import logger from '@nakiri/core/utils/logger';`
-   - ✅ `import db from '@nakiri/core/services/database';`
-   - ✅ `import cache from '@nakiri/core/services/cache';`
-   - ✅ `import { defineModule } from '@nakiri/core/services/modules';`
+   - **WAJIB** menggunakan package specifier `@kurisu/core/...`.
+   - ✅ `import logger from '@kurisu/core/utils/logger';`
+   - ✅ `import db from '@kurisu/core/services/database';`
+   - ✅ `import cache from '@kurisu/core/services/cache';`
+   - ✅ `import { defineModule } from '@kurisu/core/services/modules';`
 2. **Memanggil App Modules:**
    - Gunakan Subpath Import `#app/...`.
    - ✅ `import { defineCommand } from '#app/services/bot/index.js';`

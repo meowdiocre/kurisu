@@ -2,8 +2,8 @@ import util from 'util';
 import fs from 'fs';
 import os from 'os';
 import { defineCommand } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
-import cache from '@nakiri/core/services/cache';
+import db from '@kurisu/core/services/database';
+import cache from '@kurisu/core/services/cache';
 
 export default defineCommand({
   name: '>',

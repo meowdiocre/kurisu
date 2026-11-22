@@ -8,13 +8,13 @@ export async function up(knex) {
 
   const hasGirlfriend = await knex.schema.hasColumn(
     'bots',
-    'nakiri_girlfriend'
+    'kurisu_girlfriend'
   );
-  const hasAdult = await knex.schema.hasColumn('bots', 'nakiri_18');
+  const hasAdult = await knex.schema.hasColumn('bots', 'kurisu_18');
 
   await knex.schema.alterTable('bots', (table) => {
-    if (!hasGirlfriend) table.json('nakiri_girlfriend').nullable();
-    if (!hasAdult) table.json('nakiri_18').nullable();
+    if (!hasGirlfriend) table.json('kurisu_girlfriend').nullable();
+    if (!hasAdult) table.json('kurisu_18').nullable();
   });
 }
 
@@ -28,12 +28,12 @@ export async function down(knex) {
 
   const hasGirlfriend = await knex.schema.hasColumn(
     'bots',
-    'nakiri_girlfriend'
+    'kurisu_girlfriend'
   );
-  const hasAdult = await knex.schema.hasColumn('bots', 'nakiri_18');
+  const hasAdult = await knex.schema.hasColumn('bots', 'kurisu_18');
 
   await knex.schema.alterTable('bots', (table) => {
-    if (hasGirlfriend) table.dropColumn('nakiri_girlfriend');
-    if (hasAdult) table.dropColumn('nakiri_18');
+    if (hasGirlfriend) table.dropColumn('kurisu_girlfriend');
+    if (hasAdult) table.dropColumn('kurisu_18');
   });
 }

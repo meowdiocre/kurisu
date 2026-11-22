@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import net from 'node:net';
 import vm from 'node:vm';
-import { Http } from '@nakiri/core/utils/http';
+import { Http } from '@kurisu/core/utils/http';
 
 if (typeof net.setDefaultAutoSelectFamilyAttemptTimeout === 'function') {
   net.setDefaultAutoSelectFamilyAttemptTimeout(5000);
@@ -648,7 +648,7 @@ function parseContentDispositionFilename(header) {
  * Fetch the binary media file from a resolved download URL.
  *
  * @param {string} downloadUrl
- * @returns {Promise<import('@nakiri/core/utils/http').HttpResponse>}
+ * @returns {Promise<import('@kurisu/core/utils/http').HttpResponse>}
  */
 async function fetchMediaBinary(downloadUrl) {
   const host = new URL(downloadUrl).hostname;

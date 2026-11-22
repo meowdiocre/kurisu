@@ -1,5 +1,5 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
+import db from '@kurisu/core/services/database';
 import { resolveTarget } from '#app/utils/target.js';
 import { DateTime } from 'luxon';
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { pathToFileURL } from 'url';
-import { dirApp } from '@nakiri/core/utils/path';
-import logger from '@nakiri/core/utils/logger';
+import { dirApp } from '@kurisu/core/utils/path';
+import logger from '@kurisu/core/utils/logger';
 
 /**
  * Cache loaded kernel module

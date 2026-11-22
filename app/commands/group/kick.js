@@ -1,7 +1,7 @@
 import { defineCommand, getGroupMetadata } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
-import { delay } from '@nakiri/core/utils/common';
-import logger from '@nakiri/core/utils/logger';
+import db from '@kurisu/core/services/database';
+import { delay } from '@kurisu/core/utils/common';
+import logger from '@kurisu/core/utils/logger';
 import { resolveTarget } from '#app/utils/target.js';
 
 /**

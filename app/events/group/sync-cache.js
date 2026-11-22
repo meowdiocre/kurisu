@@ -1,9 +1,9 @@
-import { defineModule } from '@nakiri/core/services/modules';
+import { defineModule } from '@kurisu/core/services/modules';
 import {
   clearGroupMetadataCache,
   getGroupMetadata,
 } from '#app/services/bot/index.js';
-import cache from '@nakiri/core/services/cache/index';
+import cache from '@kurisu/core/services/cache/index';
 
 export default defineModule({
   name: 'group-sync',

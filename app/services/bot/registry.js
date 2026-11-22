@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { dirApp } from '@nakiri/core/utils/path';
-import logger from '@nakiri/core/utils/logger';
+import { dirApp } from '@kurisu/core/utils/path';
+import logger from '@kurisu/core/utils/logger';
 import { getCommandMiddleware } from './middleware.js';
 
 export class CommandRegistry {

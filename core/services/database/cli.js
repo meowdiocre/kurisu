@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import pc from 'picocolors';
 import * as p from '@clack/prompts';
-import { dirApp } from '@nakiri/core/utils/path';
-import logger from '@nakiri/core/utils/logger';
+import { dirApp } from '@kurisu/core/utils/path';
+import logger from '@kurisu/core/utils/logger';
 import { db, closeDatabase } from './connection.js';
 import { getMigrationDirectories, getSeedDirectories } from './helpers.js';
 
@@ -72,7 +72,7 @@ export async function makeMigration(rawName) {
       name = String(response).trim();
     } else {
       throw new Error(
-        'Migration name is required. Usage: node nakiri make:migrate <name>'
+        'Migration name is required. Usage: node kurisu make:migrate <name>'
       );
     }
   }
@@ -170,7 +170,7 @@ export async function makeSeeder(rawName) {
       name = String(response).trim();
     } else {
       throw new Error(
-        'Seeder name is required. Usage: node nakiri make:seed <name>'
+        'Seeder name is required. Usage: node kurisu make:seed <name>'
       );
     }
   }
@@ -194,7 +194,7 @@ export async function makeSeeder(rawName) {
 
   const targetPath = path.join(seedsDir, fileName);
 
-  const templateContent = `import { firstOrCreate } from '@nakiri/core/services/database';
+  const templateContent = `import { firstOrCreate } from '@kurisu/core/services/database';
 
 /**
  * @param {import('knex').Knex} knex
@@ -406,39 +406,39 @@ export async function runSeed({ specific } = {}) {
  * Print CLI help overview for database commands.
  */
 export function printDatabaseHelp() {
-  console.log(pc.bold('\nNakiri Database CLI Commands:'));
+  console.log(pc.bold('\nKurisu Database CLI Commands:'));
   console.log(
     pc.dim('==================================================================')
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate')}                 Run all pending migrations`
+    `  ${pc.cyan('node kurisu migrate')}                 Run all pending migrations`
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate --seed')}          Run migrations and execute seeders`
+    `  ${pc.cyan('node kurisu migrate --seed')}          Run migrations and execute seeders`
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate:fresh')}           Drop all tables and re-run all migrations`
+    `  ${pc.cyan('node kurisu migrate:fresh')}           Drop all tables and re-run all migrations`
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate:fresh --seed')}    Drop tables, migrate, and execute seeders`
+    `  ${pc.cyan('node kurisu migrate:fresh --seed')}    Drop tables, migrate, and execute seeders`
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate:rollback')}        Rollback the last batch of migrations`
+    `  ${pc.cyan('node kurisu migrate:rollback')}        Rollback the last batch of migrations`
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate:rollback --all')}  Rollback all executed migrations`
+    `  ${pc.cyan('node kurisu migrate:rollback --all')}  Rollback all executed migrations`
   );
   console.log(
-    `  ${pc.cyan('node nakiri migrate:status')}          Show status of completed & pending migrations`
+    `  ${pc.cyan('node kurisu migrate:status')}          Show status of completed & pending migrations`
   );
   console.log(
-    `  ${pc.cyan('node nakiri make:migrate <name>')}     Create a new migration file`
+    `  ${pc.cyan('node kurisu make:migrate <name>')}     Create a new migration file`
   );
   console.log(
-    `  ${pc.cyan('node nakiri make:seed <name>')}        Create a new seeder file`
+    `  ${pc.cyan('node kurisu make:seed <name>')}        Create a new seeder file`
   );
   console.log(
-    `  ${pc.cyan('node nakiri db:seed')}                 Run all database seeders`
+    `  ${pc.cyan('node kurisu db:seed')}                 Run all database seeders`
   );
   console.log(
     pc.dim(

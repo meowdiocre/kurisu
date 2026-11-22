@@ -1,4 +1,4 @@
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 
 const clients = new Map();
 

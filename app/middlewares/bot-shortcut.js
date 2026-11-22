@@ -13,7 +13,7 @@ const toHex = (buf) => {
  * Dynamic shortcuts middleware (Sticker and Reaction/Emoji triggers).
  * Rewrites ctx.msg.body when a matching sticker hash or emoji trigger is detected.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function botShortcutMiddleware(payload, ctx) {
   const msg = ctx.msg;

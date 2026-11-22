@@ -1,4 +1,4 @@
-import db from '@nakiri/core/services/database';
+import db from '@kurisu/core/services/database';
 import { DateTime } from 'luxon';
 import { defineSkill } from '#app/services/ai/skill.js';
 import { extractMentionsFromText } from '#app/services/bot/index.js';

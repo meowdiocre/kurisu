@@ -1,5 +1,5 @@
-import db from '@nakiri/core/services/database';
-import logger from '@nakiri/core/utils/logger';
+import db from '@kurisu/core/services/database';
+import logger from '@kurisu/core/utils/logger';
 import { matchBlockedPatterns } from '#app/utils/pattern.js';
 
 /**
@@ -7,7 +7,7 @@ import { matchBlockedPatterns } from '#app/utils/pattern.js';
  * Intercepts offending messages from non-admin participants, deletes the message (if bot is admin),
  * increments member warning count, and halts pipeline execution.
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function groupBlockwordsMiddleware(payload, ctx) {
   const { client, msg, tableGroup, tableGroupMember } = ctx;

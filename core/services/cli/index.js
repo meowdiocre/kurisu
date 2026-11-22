@@ -7,7 +7,7 @@ import { eventCommands } from './commands/event.js';
 export * from './registry.js';
 
 /**
- * Global singleton CLI registry for Nakiri
+ * Global singleton CLI registry for Kurisu
  */
 export const cliRegistry = new CliRegistry();
 

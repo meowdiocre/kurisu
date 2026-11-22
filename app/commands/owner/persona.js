@@ -1,5 +1,5 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
+import db from '@kurisu/core/services/database';
 import {
   normalizePersonaDigits,
   normalizePersonaList,
@@ -105,8 +105,8 @@ export default defineCommand({
     const subcommand = (subcommandRaw || '').toLowerCase();
     const targetInput = targetParts.join(' ').trim();
 
-    const girlfriend = normalizePersonaList(tableBot?.nakiri_girlfriend);
-    const adult = normalizePersonaList(tableBot?.nakiri_18);
+    const girlfriend = normalizePersonaList(tableBot?.kurisu_girlfriend);
+    const adult = normalizePersonaList(tableBot?.kurisu_18);
 
     const sendGuide = () =>
       msg.reply(
@@ -123,8 +123,8 @@ export default defineCommand({
 
     const save = async (nextGirlfriend, nextAdult) => {
       await db('bots').update({
-        nakiri_girlfriend: JSON.stringify(nextGirlfriend),
-        nakiri_18: JSON.stringify(nextAdult),
+        kurisu_girlfriend: JSON.stringify(nextGirlfriend),
+        kurisu_18: JSON.stringify(nextAdult),
       });
       tableBot?.clearCache?.();
     };

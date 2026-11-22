@@ -1,7 +1,7 @@
-import cache from '@nakiri/core/services/cache';
-import { RateLimiter } from '@nakiri/core/utils/rate-limiter';
-import logger from '@nakiri/core/utils/logger';
-import { delay } from '@nakiri/core/utils/common';
+import cache from '@kurisu/core/services/cache';
+import { RateLimiter } from '@kurisu/core/utils/rate-limiter';
+import logger from '@kurisu/core/utils/logger';
+import { delay } from '@kurisu/core/utils/common';
 import { createChatCompletion } from '#app/services/ai/client.js';
 import {
   AI_CONFIG,
@@ -37,13 +37,13 @@ const aiRateLimiter = new RateLimiter(cache);
 const activeAiRequests = new Set();
 
 /**
- * Natural Nakiri AI chat middleware.
+ * Natural Kurisu AI chat middleware.
  * Triggers only when:
- * 1. Bot is explicitly mentioned (@Nakiri)
+ * 1. Bot is explicitly mentioned (@Kurisu)
  * 2. Message quotes / replies to a message sent by the bot
  * 3. Private chat and the message is not a command
  *
- * @type {import('@nakiri/core/services/modules').EventMiddleware<'message'>}
+ * @type {import('@kurisu/core/services/modules').EventMiddleware<'message'>}
  */
 export default async function botAiChatMiddleware(payload, ctx) {
   const { client, msg } = ctx;
@@ -309,7 +309,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
       await client.presence.sendChatstate(msg.chat, { state: 'paused' });
     } catch {}
 
-    logger.error('[AI_CHAT]', `Nakiri AI chat error: ${err.message}`);
+    logger.error('[AI_CHAT]', `Kurisu AI chat error: ${err.message}`);
   } finally {
     activeAiRequests.delete(lockKey);
   }

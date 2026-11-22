@@ -1,6 +1,6 @@
-import { imageToWebp, videoToWebp } from '@nakiri/core/utils/converter';
-import { writeExif } from '@nakiri/core/utils/metadata';
-import { Http } from '@nakiri/core/utils/http';
+import { imageToWebp, videoToWebp } from '@kurisu/core/utils/converter';
+import { writeExif } from '@kurisu/core/utils/metadata';
+import { Http } from '@kurisu/core/utils/http';
 
 const URL_REGEX = /https?:\/\/[^\s]+/;
 
@@ -75,7 +75,7 @@ async function resolveUrlMedia(url) {
  * @param {any} options.msg - Parsed message
  * @param {string} [options.text=''] - Optional meme text, use `|` for top and bottom
  * @param {string} [options.url=''] - Optional image/video URL
- * @param {string} [options.packname='Nakiri']
+ * @param {string} [options.packname='Kurisu']
  * @param {string} [options.author='BOT']
  * @returns {Promise<Buffer | null>} Sticker WebP buffer, or null when no media is found
  */
@@ -83,7 +83,7 @@ export async function createSticker({
   msg,
   text = '',
   url = '',
-  packname = 'Nakiri',
+  packname = 'Kurisu',
   author = 'BOT',
 }) {
   let memeText = typeof text === 'string' ? text.trim() : '';

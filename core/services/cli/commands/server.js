@@ -4,10 +4,10 @@ export const startServerCommand = defineCommand({
   name: 'start',
   aliases: ['serve', 'bot'],
   category: 'server',
-  description: 'Start Nakiri WhatsApp bot runtime server',
+  description: 'Start Kurisu WhatsApp bot runtime server',
   usage: 'start',
   async execute() {
-    const { startServer } = await import('@nakiri/core/server');
+    const { startServer } = await import('@kurisu/core/server');
     await startServer();
   },
 });

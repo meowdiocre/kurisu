@@ -1,15 +1,15 @@
 {
-  "name": "nakiri",
+  "name": "kurisu",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
   "author": "ilsyaa",
   "type": "module",
-  "main": "nakiri.js",
+  "main": "kurisu.js",
   "scripts": {
     "start": "node core/server.js",
     "bot": "node core/server.js",
-    "cli": "node nakiri.js",
+    "cli": "node kurisu.js",
     "dev": "node --watch-path=app --watch-path=core core/server.js"
   },
   "imports": {

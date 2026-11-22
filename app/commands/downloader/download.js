@@ -1,4 +1,4 @@
-import logger from '@nakiri/core/utils/logger';
+import logger from '@kurisu/core/utils/logger';
 import { defineCommand } from '#app/services/bot/index.js';
 import { downloadMedia } from '#app/services/downloader-media.js';
 

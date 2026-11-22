@@ -1,6 +1,6 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
-import logger from '@nakiri/core/utils/logger';
+import db from '@kurisu/core/services/database';
+import logger from '@kurisu/core/utils/logger';
 import chatBuffer from '#app/services/chat-buffer.js';
 import { summarizeChat } from '#app/services/ai/summarizer.js';
 import { DateTime } from 'luxon';

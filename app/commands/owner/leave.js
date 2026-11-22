@@ -1,8 +1,8 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import { delay } from '@nakiri/core/utils/common';
-import db from '@nakiri/core/services/database';
-import cache from '@nakiri/core/services/cache';
-import logger from '@nakiri/core/utils/logger';
+import { delay } from '@kurisu/core/utils/common';
+import db from '@kurisu/core/services/database';
+import cache from '@kurisu/core/services/cache';
+import logger from '@kurisu/core/utils/logger';
 import { clearGroupMetadataCache } from '#app/services/bot/index.js';
 
 export default defineCommand({

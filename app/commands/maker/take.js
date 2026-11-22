@@ -1,6 +1,6 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import { writeExif } from '@nakiri/core/utils/metadata';
-import logger from '@nakiri/core/utils/logger';
+import { writeExif } from '@kurisu/core/utils/metadata';
+import logger from '@kurisu/core/utils/logger';
 
 export default defineCommand({
   name: 'take',
@@ -20,12 +20,12 @@ export default defineCommand({
 
       // 2. Parse packname & author from arguments
       const argsText = msg.body?.argsText?.trim() || '';
-      let packname = 'Nakiri';
+      let packname = 'Kurisu';
       let author = 'BOT';
 
       if (argsText) {
         const parts = argsText.split('|');
-        packname = parts[0]?.trim() || 'Nakiri';
+        packname = parts[0]?.trim() || 'Kurisu';
         author = parts.length > 1 ? parts.slice(1).join('|').trim() : 'BOT';
       }
 

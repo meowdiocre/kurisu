@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { dirEvents, dirApp } from '@nakiri/core/utils/path';
-import logger from '@nakiri/core/utils/logger';
+import { dirEvents, dirApp } from '@kurisu/core/utils/path';
+import logger from '@kurisu/core/utils/logger';
 import { runPipeline } from './pipeline.js';
-import { runStarts } from '@nakiri/core/services/starts/runner.js';
+import { runStarts } from '@kurisu/core/services/starts/runner.js';
 
 export class ModuleLoader {
   constructor() {

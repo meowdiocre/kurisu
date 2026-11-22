@@ -1,4 +1,4 @@
-import db from '@nakiri/core/services/database';
+import db from '@kurisu/core/services/database';
 import { DateTime } from 'luxon';
 
 export const NOTE_SCOPE_PERSONAL = 'personal';

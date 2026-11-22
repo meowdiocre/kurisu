@@ -1,7 +1,7 @@
-import { defineModule } from '@nakiri/core/services/modules';
-import db from '@nakiri/core/services/database';
-import cache from '@nakiri/core/services/cache';
-import logger from '@nakiri/core/utils/logger';
+import { defineModule } from '@kurisu/core/services/modules';
+import db from '@kurisu/core/services/database';
+import cache from '@kurisu/core/services/cache';
+import logger from '@kurisu/core/utils/logger';
 import { clearGroupMetadataCache } from '#app/services/bot/index.js';
 import { deleteGroupNotes } from '#app/services/note.js';
 

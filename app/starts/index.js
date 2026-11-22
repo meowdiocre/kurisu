@@ -1,4 +1,4 @@
-import { app } from '@nakiri/core/services/starts';
+import { app } from '@kurisu/core/services/starts';
 
 /**
  * Global Startup Files

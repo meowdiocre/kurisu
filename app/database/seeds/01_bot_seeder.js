@@ -1,4 +1,4 @@
-import { firstOrCreate } from '@nakiri/core/services/database';
+import { firstOrCreate } from '@kurisu/core/services/database';
 
 /**
  * @param {import('knex').Knex} knex
@@ -11,8 +11,8 @@ export async function seed(knex) {
     {
       owners: JSON.stringify(['6285174902345', '210900309037136']),
       prefixes: JSON.stringify(['!', '.', '#']),
-      nakiri_girlfriend: JSON.stringify([]),
-      nakiri_18: JSON.stringify([]),
+      kurisu_girlfriend: JSON.stringify([]),
+      kurisu_18: JSON.stringify([]),
       self: false,
     }
   );

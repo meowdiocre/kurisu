@@ -6,8 +6,8 @@ import {
   runSeed,
   makeMigration,
   makeSeeder,
-} from '@nakiri/core/services/database/cli';
-import { closeDatabase } from '@nakiri/core/services/database/connection';
+} from '@kurisu/core/services/database/cli';
+import { closeDatabase } from '@kurisu/core/services/database/connection';
 import { defineCommand } from '../registry.js';
 
 export const migrateCommand = defineCommand({

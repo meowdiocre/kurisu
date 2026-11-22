@@ -1,4 +1,4 @@
-import { defineModule } from '@nakiri/core/services/modules';
+import { defineModule } from '@kurisu/core/services/modules';
 import {
   runEventMiddlewares,
   dispatchCommand,

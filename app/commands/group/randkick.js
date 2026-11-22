@@ -1,6 +1,6 @@
 import { defineCommand } from '#app/services/bot/index.js';
-import db from '@nakiri/core/services/database';
-import { shuffleArray, delay } from '@nakiri/core/utils/common';
+import db from '@kurisu/core/services/database';
+import { shuffleArray, delay } from '@kurisu/core/utils/common';
 
 export default defineCommand({
   name: 'randkick',
