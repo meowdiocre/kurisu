@@ -3,9 +3,10 @@ import logger from '@kurisu/core/utils/logger';
 import {
   DEFAULT_CALL_SECONDS,
   MAX_CALL_SECONDS,
+  describeCallError,
   normalizeCallSeconds,
   placeMiscall,
-  resolveCallTarget,
+  resolveCallTargetJid,
 } from '#app/services/call.js';
 
 export default defineSkill({
@@ -39,7 +40,8 @@ export default defineSkill({
       return 'Owner only: miscall is restricted to bot owners.';
     }
 
-    const target = resolveCallTarget(
+    const target = await resolveCallTargetJid(
+      client,
       msg,
       typeof args?.target === 'string' ? args.target : ''
     );
@@ -59,7 +61,7 @@ export default defineSkill({
       return `Rang ${target} for ${seconds} seconds, then hung up.`;
     } catch (err) {
       logger.error('[AI_SKILL]', `call_number failed: ${err.message}`);
-      return `Call failed: ${err.message}`;
+      return `Call failed: ${describeCallError(err)}`;
     }
   },
 });

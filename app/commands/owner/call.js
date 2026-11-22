@@ -3,9 +3,10 @@ import logger from '@kurisu/core/utils/logger';
 import {
   DEFAULT_CALL_SECONDS,
   MAX_CALL_SECONDS,
+  describeCallError,
   normalizeCallSeconds,
   placeMiscall,
-  resolveCallTarget,
+  resolveCallTargetJid,
 } from '#app/services/call.js';
 
 const USAGE = (prefix) =>
@@ -47,7 +48,11 @@ export default defineCommand({
       seconds = parsed;
     }
 
-    const target = resolveCallTarget(msg, args.join(' ').trim());
+    const target = await resolveCallTargetJid(
+      client,
+      msg,
+      args.join(' ').trim()
+    );
     if (!target) {
       return msg.reply(USAGE(prefix));
     }
@@ -60,8 +65,9 @@ export default defineCommand({
       await placeMiscall(client, target, seconds);
       logger.info('[OWNER]', `Miscall sent to ${target} for ${seconds}s`);
     } catch (err) {
+      const reason = describeCallError(err);
       logger.error('[OWNER]', `Miscall failed for ${target}: ${err.message}`);
-      await msg.reply(`Miscall gagal: ${err.message}`);
+      await msg.reply(`Miscall gagal: ${reason}`);
     }
   },
 });

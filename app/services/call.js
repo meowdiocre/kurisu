@@ -30,30 +30,31 @@ export function normalizeCallSeconds(value, fallback = DEFAULT_CALL_SECONDS) {
 
 /**
  * Resolve a call target from explicit input, a mention, or a quoted sender.
- * Explicit input wins so `.call 628...` is never overridden by a reply.
+ * A bare number that matches a mention keeps the mention's addressing
+ * (LID vs PN) so a LID is never mistaken for a phone number.
  *
  * @param {any} msg - Parsed message
  * @param {string} [input] - Manual number or JID
  * @returns {string | null} WhatsApp user JID
  */
 export function resolveCallTarget(msg, input = '') {
+  /** @type {{ jid: string, bare: string }[]} */
   const candidates = [];
   const add = (jid, kind) => {
     const bare = toBareUser(jid);
     if (!bare || bare.length < 7) return;
-    candidates.push(`${bare}@${kind}`);
+    candidates.push({ jid: `${bare}@${kind}`, bare });
   };
 
   const manual = String(input || '').trim();
   const isMentionToken = manual.startsWith('@');
+  const manualDigits = !isMentionToken ? cleanDigits(manual) : '';
+
   if (manual && !isMentionToken) {
     if (isLidJid(manual)) {
       add(manual, 'lid');
-    } else {
-      const digits = cleanDigits(manual);
-      if (digits.length >= 7 && digits.length <= 16) {
-        add(`${digits}@s.whatsapp.net`, 's.whatsapp.net');
-      }
+    } else if (manualDigits.length >= 7 && manualDigits.length <= 16) {
+      add(`${manualDigits}@s.whatsapp.net`, 's.whatsapp.net');
     }
   }
 
@@ -71,7 +72,59 @@ export function resolveCallTarget(msg, input = '') {
     }
   }
 
-  return candidates[0] || null;
+  if (manualDigits) {
+    const addressed = candidates.find(
+      (item) =>
+        item.bare === manualDigits && !item.jid.endsWith('@s.whatsapp.net')
+    );
+    if (addressed) return addressed.jid;
+  }
+
+  return candidates[0]?.jid || null;
+}
+
+/**
+ * Resolve a call target and prefer a phone-number JID for calls.
+ * LID mentions are mapped through the contact store when a PN is known.
+ *
+ * @param {any} client
+ * @param {any} msg
+ * @param {string} [input]
+ * @returns {Promise<string | null>}
+ */
+export async function resolveCallTargetJid(client, msg, input = '') {
+  const jid = resolveCallTarget(msg, input);
+  if (!jid || !jid.endsWith('@lid')) return jid;
+
+  try {
+    const contact = await client?.stores?.contacts?.getByJid?.(jid);
+    const pn =
+      contact?.phoneNumber ||
+      (contact?.jid && !isLidJid(contact.jid) ? contact.jid : null);
+    const bare = toBareUser(pn);
+    if (bare && bare.length >= 7) return `${bare}@s.whatsapp.net`;
+  } catch {
+    // Fall back to the LID when the contact store cannot resolve it.
+  }
+
+  return jid;
+}
+
+/**
+ * Turn provider errors into a short user-facing reason.
+ *
+ * @param {unknown} err
+ * @returns {string}
+ */
+export function describeCallError(err) {
+  const message = String(err?.message ?? err ?? '').trim();
+  if (/no device sessions/i.test(message)) {
+    return 'Nomor itu tidak aktif di WhatsApp / tidak ada device yang bisa dihubungi.';
+  }
+  if (/concurrent|max.*call|limit/i.test(message)) {
+    return 'Masih ada panggilan aktif. Tunggu call sebelumnya selesai.';
+  }
+  return message || 'Panggilan gagal.';
 }
 
 /**
@@ -115,5 +168,7 @@ export default {
   DEFAULT_CALL_SECONDS,
   normalizeCallSeconds,
   resolveCallTarget,
+  resolveCallTargetJid,
+  describeCallError,
   placeMiscall,
 };
