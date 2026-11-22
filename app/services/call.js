@@ -58,8 +58,7 @@ export function resolveCallTarget(msg, input = '') {
     }
   }
 
-  const mention = msg?.body?.mentionedJid?.[0];
-  if (mention) {
+  for (const mention of msg?.body?.mentionedJid || []) {
     add(mention, isLidJid(mention) ? 'lid' : 's.whatsapp.net');
   }
 
@@ -92,22 +91,59 @@ export function resolveCallTarget(msg, input = '') {
  * @param {string} [input]
  * @returns {Promise<string | null>}
  */
-export async function resolveCallTargetJid(client, msg, input = '') {
-  const jid = resolveCallTarget(msg, input);
-  if (!jid || !jid.endsWith('@lid')) return jid;
+export async function resolveCallTargets(client, msg, input = '') {
+  const primary = resolveCallTarget(msg, input);
+  /** @type {string[]} */
+  const targets = [];
+  const push = (jid) => {
+    if (jid && !targets.includes(jid)) targets.push(jid);
+  };
 
-  try {
-    const contact = await client?.stores?.contacts?.getByJid?.(jid);
+  const pnFromContact = (contact) => {
     const pn =
       contact?.phoneNumber ||
       (contact?.jid && !isLidJid(contact.jid) ? contact.jid : null);
     const bare = toBareUser(pn);
-    if (bare && bare.length >= 7) return `${bare}@s.whatsapp.net`;
-  } catch {
-    // Fall back to the LID when the contact store cannot resolve it.
+    return bare && bare.length >= 7 ? `${bare}@s.whatsapp.net` : null;
+  };
+
+  if (!primary) return targets;
+
+  if (primary.endsWith('@lid')) {
+    push(primary);
+    try {
+      const contact = await client?.stores?.contacts?.getByJid?.(primary);
+      const pn = pnFromContact(contact);
+      if (pn) push(pn);
+    } catch {
+      // Keep the LID candidate when the contact store cannot answer.
+    }
+    return targets;
   }
 
-  return jid;
+  const manual = String(input || '').trim();
+  const manualDigits =
+    manual && !manual.startsWith('@') && !manual.includes('@')
+      ? cleanDigits(manual)
+      : '';
+
+  // A bare number may be a LID typed without the @lid suffix.
+  if (manualDigits) {
+    const lidJid = `${manualDigits}@lid`;
+    try {
+      const contact = await client?.stores?.contacts?.getByJid?.(lidJid);
+      if (contact) {
+        push(lidJid);
+        const pn = pnFromContact(contact);
+        if (pn) push(pn);
+      }
+    } catch {
+      // Fall through to the PN candidate.
+    }
+  }
+
+  push(primary);
+  return targets;
 }
 
 /**
@@ -129,38 +165,62 @@ export function describeCallError(err) {
 
 /**
  * Ring a WhatsApp user for a fixed number of seconds, then hang up.
+ * Tries each candidate JID (LID first, then PN) until one has devices.
  *
  * @param {any} client
- * @param {string} peerJid
+ * @param {string | string[]} peerJids
  * @param {number} seconds
- * @returns {Promise<string>} call id
+ * @returns {Promise<{ callId: string, peerJid: string }>}
  */
-export async function placeMiscall(client, peerJid, seconds) {
+export async function placeMiscall(client, peerJids, seconds) {
   if (!client?.voip?.startCall || !client?.voip?.endCall) {
     throw new Error('VoIP plugin is not available');
   }
 
-  const callId = await client.voip.startCall({
-    peerJid,
-    isVideo: false,
-  });
+  const targets = (Array.isArray(peerJids) ? peerJids : [peerJids]).filter(
+    Boolean
+  );
+  if (targets.length === 0) {
+    throw new Error('No call target');
+  }
 
-  logger.info('[CALL]', `Miscall ${peerJid} for ${seconds}s (${callId})`);
-
-  try {
-    await delay(seconds * 1000);
-  } finally {
+  let lastError = null;
+  for (const peerJid of targets) {
     try {
-      await client.voip.endCall(callId);
+      const callId = await client.voip.startCall({
+        peerJid,
+        isVideo: false,
+      });
+
+      logger.info('[CALL]', `Miscall ${peerJid} for ${seconds}s (${callId})`);
+
+      try {
+        await delay(seconds * 1000);
+      } finally {
+        try {
+          await client.voip.endCall(callId);
+        } catch (err) {
+          logger.warn(
+            '[CALL]',
+            `Failed to end call ${callId}: ${err.message ?? err}`
+          );
+        }
+      }
+
+      return { callId, peerJid };
     } catch (err) {
+      lastError = err;
+      if (!/no device sessions/i.test(String(err?.message ?? ''))) {
+        throw err;
+      }
       logger.warn(
         '[CALL]',
-        `Failed to end call ${callId}: ${err.message ?? err}`
+        `No devices for ${peerJid}; trying next candidate`
       );
     }
   }
 
-  return callId;
+  throw lastError;
 }
 
 export default {
@@ -168,7 +228,7 @@ export default {
   DEFAULT_CALL_SECONDS,
   normalizeCallSeconds,
   resolveCallTarget,
-  resolveCallTargetJid,
+  resolveCallTargets,
   describeCallError,
   placeMiscall,
 };

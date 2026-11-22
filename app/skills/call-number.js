@@ -6,7 +6,7 @@ import {
   describeCallError,
   normalizeCallSeconds,
   placeMiscall,
-  resolveCallTargetJid,
+  resolveCallTargets,
 } from '#app/services/call.js';
 
 export default defineSkill({
@@ -40,12 +40,12 @@ export default defineSkill({
       return 'Owner only: miscall is restricted to bot owners.';
     }
 
-    const target = await resolveCallTargetJid(
+    const targets = await resolveCallTargets(
       client,
       msg,
       typeof args?.target === 'string' ? args.target : ''
     );
-    if (!target) {
+    if (targets.length === 0) {
       return 'No valid phone number was found. Ask the owner for a number or reply to the target message.';
     }
 
@@ -57,8 +57,8 @@ export default defineSkill({
     }
 
     try {
-      await placeMiscall(client, target, seconds);
-      return `Rang ${target} for ${seconds} seconds, then hung up.`;
+      const { peerJid } = await placeMiscall(client, targets, seconds);
+      return `Rang ${peerJid} for ${seconds} seconds, then hung up.`;
     } catch (err) {
       logger.error('[AI_SKILL]', `call_number failed: ${err.message}`);
       return `Call failed: ${describeCallError(err)}`;

@@ -6,7 +6,7 @@ import {
   describeCallError,
   normalizeCallSeconds,
   placeMiscall,
-  resolveCallTargetJid,
+  resolveCallTargets,
 } from '#app/services/call.js';
 
 const USAGE = (prefix) =>
@@ -48,25 +48,32 @@ export default defineCommand({
       seconds = parsed;
     }
 
-    const target = await resolveCallTargetJid(
+    const targets = await resolveCallTargets(
       client,
       msg,
       args.join(' ').trim()
     );
-    if (!target) {
+    if (targets.length === 0) {
       return msg.reply(USAGE(prefix));
     }
 
+    const display = (
+      targets.find((jid) => jid.endsWith('@s.whatsapp.net')) || targets[0]
+    ).split('@')[0];
+
     await msg.reply(
-      `Miscall ke *${target.split('@')[0]}* selama *${seconds} detik*...`
+      `Miscall ke *${display}* selama *${seconds} detik*...`
     );
 
     try {
-      await placeMiscall(client, target, seconds);
-      logger.info('[OWNER]', `Miscall sent to ${target} for ${seconds}s`);
+      const { peerJid } = await placeMiscall(client, targets, seconds);
+      logger.info('[OWNER]', `Miscall sent to ${peerJid} for ${seconds}s`);
     } catch (err) {
       const reason = describeCallError(err);
-      logger.error('[OWNER]', `Miscall failed for ${target}: ${err.message}`);
+      logger.error(
+        '[OWNER]',
+        `Miscall failed for ${targets.join(', ')}: ${err.message}`
+      );
       await msg.reply(`Miscall gagal: ${reason}`);
     }
   },
