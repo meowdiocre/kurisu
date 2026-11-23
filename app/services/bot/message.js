@@ -217,7 +217,7 @@ function parseCommandAndArgs(rawText, prefixes = ['!']) {
  * @param {{ id?: string | null, pn?: string | null, lid?: string | null }} actor
  * @returns {any | null}
  */
-function findGroupParticipant(participants, actor) {
+export function findGroupParticipant(participants, actor) {
   if (!Array.isArray(participants) || !actor) return null;
 
   const actorTargets = new Set(
@@ -228,6 +228,11 @@ function findGroupParticipant(participants, actor) {
       actor.pn ? actor.pn.split('@')[0] : null,
       actor.lid ? actor.lid.split('@')[0] : null,
     ].filter(Boolean)
+  );
+  const actorDigits = new Set(
+    [...actorTargets]
+      .map((value) => String(value).split('@')[0].replace(/[^0-9]/g, ''))
+      .filter(Boolean)
   );
 
   for (const p of participants) {
@@ -245,6 +250,13 @@ function findGroupParticipant(participants, actor) {
       if (actorTargets.has(target)) {
         return p;
       }
+    }
+
+    const pDigits = pTargets
+      .map((value) => String(value).split('@')[0].replace(/[^0-9]/g, ''))
+      .filter(Boolean);
+    if (pDigits.some((digits) => actorDigits.has(digits))) {
+      return p;
     }
   }
 

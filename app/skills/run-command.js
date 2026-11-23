@@ -15,6 +15,7 @@ const ALLOWED_COMMANDS = new Set([
   'warn',
   'gmode',
   'blockword',
+  'botaccess',
   'welcome',
   'goodbye',
   'board',
@@ -60,19 +61,19 @@ const DENIED_TRIGGERS = new Set([
 export default defineSkill({
   name: 'run_bot_command',
   description:
-    'Jalankan command Kurisu yang aman dengan guard yang sama seperti command manual. Gunakan untuk aksi grup (kick, warn, gmode, blockword, welcome, goodbye, board, member, summary), catatan, reminder, stiker, download, menu, dan ping. Jangan gunakan untuk eval, exec, owner, prefix, shortcut, persona, mode, join, leave, call, atau say.',
+    'Jalankan command Kurisu yang aman dengan guard yang sama seperti command manual. Gunakan untuk aksi grup (kick, warn, gmode, blockword, botaccess, welcome, goodbye, board, member, summary), catatan, reminder, stiker, download, menu, dan ping. Contoh: {"command":"kick","args":"628123456789 spam"}, {"command":"blockword","args":"add link:all"}, {"command":"botaccess","args":"admin"}. Jangan gunakan untuk eval, exec, owner, prefix, shortcut, persona, mode, join, leave, call, atau say.',
   parameters: {
     type: 'object',
     properties: {
       command: {
         type: 'string',
         description:
-          'Nama command tanpa prefix. Contoh: kick, warn, gmode, blockword, summary, sticker, download, note, reminder, menu.',
+          'Nama command tanpa prefix. Boleh sekalian argumen, misalnya "kick @user spam" atau "blockword add link:all".',
       },
       args: {
         type: 'string',
         description:
-          'Argumen command tanpa nama command. Contoh: "@user alasan", "admin", "now", "https://...", "halo|dunia".',
+          'Argumen command tanpa nama command. Contoh: "@user alasan", "add link:all", "admin", "now", "https://...", "halo|dunia".',
       },
     },
     required: ['command'],
@@ -84,8 +85,10 @@ export default defineSkill({
       return 'Command runner tidak tersedia di chat ini.';
     }
 
-    const trigger = String(args?.command || '')
+    const [rawTrigger, ...embeddedArgs] = String(args?.command || '')
       .trim()
+      .split(/\s+/);
+    const trigger = String(rawTrigger || '')
       .replace(/^[.\/!#]+/, '')
       .toLowerCase();
     if (!trigger) {
@@ -109,9 +112,13 @@ export default defineSkill({
       return `Command "${command.name}" tidak diizinkan lewat AI. Gunakan command manual.`;
     }
 
-    const argsText = String(
+    const explicitArgs = String(
       Array.isArray(args?.args) ? args.args.join(' ') : args?.args || ''
     ).trim();
+    const argsText = [embeddedArgs.join(' '), explicitArgs]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     const prefix =
       msg.body?.prefix ||
       ctx.tableBot?.prefixes?.[0] ||

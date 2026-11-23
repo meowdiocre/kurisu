@@ -21,7 +21,10 @@ export default defineCommand({
     const p = msg.body?.prefix || '.';
     const cmd = msg.body?.command || `${p}warn`;
 
-    const targetIdentities = resolveTarget(msg, '', { allowSelf: false });
+    const targetInput = msg.body?.args?.[0] || '';
+    const targetIdentities = resolveTarget(msg, targetInput, {
+      allowSelf: false,
+    });
     const targetChat =
       targetIdentities.pn || targetIdentities.lid || targetIdentities.raw;
 

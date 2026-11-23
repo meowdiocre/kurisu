@@ -11,13 +11,17 @@ export function normalizeIdentity(input) {
 
   // 1. WhatsApp JID format (@s.whatsapp.net, @lid, etc.)
   if (raw.includes('@')) {
-    const userJid = toUserJid(raw);
-    const { user, server } = splitJid(userJid);
-    return {
-      id: user,
-      server,
-      isLid: isLidJid(userJid),
-    };
+    try {
+      const userJid = toUserJid(raw);
+      const { user, server } = splitJid(userJid);
+      return {
+        id: user,
+        server,
+        isLid: isLidJid(userJid),
+      };
+    } catch {
+      // Fall through to digit parsing for values like "@628123456789".
+    }
   }
 
   // 2. Raw digits from user manual text input (e.g. +62 812-xxxx)

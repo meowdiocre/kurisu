@@ -2,6 +2,11 @@
  * Standard command middleware guards for Kurisu bot.
  */
 
+import {
+  findGroupParticipant,
+  getGroupMetadata,
+} from '#app/services/bot/message.js';
+
 /**
  * Parameterized sender permission guard.
  *
@@ -59,21 +64,48 @@ export async function senderGuard(payload, ctx, args = []) {
  * @type {import('#app/services/bot/types.js').CommandMiddlewareHandler}
  */
 export async function botGuard(payload, ctx, args = []) {
-  const botPerms = ctx.msg?.permissions?.bot;
-  if (!botPerms) return false;
-
   const requiredRoles = args.length > 0 ? args : ['admin'];
 
-  const hasAccess = requiredRoles.some((role) => {
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return Boolean(botPerms.admin || botPerms.superAdmin);
-      case 'superadmin':
-        return Boolean(botPerms.superAdmin);
-      default:
-        return Boolean(/** @type {Record<string, any>} */ (botPerms)[role]);
-    }
-  });
+  const hasRole = (botPerms) =>
+    requiredRoles.some((role) => {
+      switch (role.toLowerCase()) {
+        case 'admin':
+          return Boolean(botPerms?.admin || botPerms?.superAdmin);
+        case 'superadmin':
+          return Boolean(botPerms?.superAdmin);
+        default:
+          return Boolean(botPerms?.[role]);
+      }
+    });
+
+  let botPerms = ctx.msg?.permissions?.bot;
+  let hasAccess = hasRole(botPerms);
+
+  // Group metadata is cached for 5 minutes. If the bot was just promoted,
+  // refresh once before rejecting a bot-admin command.
+  if (!hasAccess && ctx.msg?.flags?.isGroup && ctx.client && ctx.msg?.chat) {
+    try {
+      const metadata = await getGroupMetadata(ctx.client, ctx.msg.chat, true);
+      const participant = findGroupParticipant(metadata?.participants, {
+        id: ctx.msg.bot?.id,
+        pn: ctx.msg.bot?.pn,
+        lid: ctx.msg.bot?.lid,
+      });
+
+      if (participant) {
+        botPerms = {
+          isOwner: Boolean(botPerms?.isOwner),
+          admin: Boolean(participant.isAdmin || participant.isSuperAdmin),
+          superAdmin: Boolean(participant.isSuperAdmin),
+        };
+        ctx.msg.permissions = {
+          ...(ctx.msg.permissions || {}),
+          bot: botPerms,
+        };
+        hasAccess = hasRole(botPerms);
+      }
+    } catch {}
+  }
 
   if (!hasAccess) {
     if (typeof ctx.msg?.reply === 'function') {

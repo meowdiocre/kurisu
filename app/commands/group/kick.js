@@ -48,8 +48,11 @@ export default defineCommand({
     const p = msg.body?.prefix || '.';
     const cmd = msg.body?.command || `${p}kick`;
 
-    // 1. Resolve targets from quote or mentions
-    const targetIdentities = resolveTarget(msg, '', { allowSelf: false });
+    // 1. Resolve targets from quote, mentions, or raw target argument
+    const targetInput = msg.body?.args?.[0] || '';
+    const targetIdentities = resolveTarget(msg, targetInput, {
+      allowSelf: false,
+    });
     const targetJids = targetIdentities.jids;
 
     if (targetJids.length === 0) {
