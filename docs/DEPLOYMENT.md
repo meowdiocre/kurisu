@@ -18,7 +18,7 @@ apt-get install -y git ffmpeg python3 python3-venv make g++
 ## 2. Ambil kode dan dependency
 
 ```bash
-git clone https://github.com/t101804/kurisu.git /opt/kurisu
+git clone https://github.com/meowdiocre/kurisu.git /opt/kurisu
 cd /opt/kurisu
 npm install
 ```

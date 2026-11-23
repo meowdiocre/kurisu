@@ -7,7 +7,7 @@ Fork dari [`ilsyaa/nakiri`](https://github.com/ilsyaa/nakiri), di-rebrand dan di
 ## Mulai cepat
 
 ```bash
-git clone git@github.com:t101804/kurisu.git
+git clone git@github.com:meowdiocre/kurisu.git
 cd kurisu
 npm install
 cp .env.example .env
