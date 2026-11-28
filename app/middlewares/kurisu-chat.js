@@ -18,6 +18,7 @@ import {
   synthesizeVoice,
   wantsVoiceReply,
 } from '#app/services/tts.js';
+import { prepareVideo, VideoError } from '#app/services/ai/video.js';
 
 /**
  * Generate a random integer between min and max inclusive
@@ -45,6 +46,11 @@ const IMAGE_MIME_TYPES = new Set(AI_CONFIG.IMAGE_MIME_TYPES);
 const IMAGE_LOAD_FAILED_REPLY = 'gambarnya belum kebaca, coba kirim ulang ya';
 const IMAGE_TOO_LARGE_REPLY =
   'gambarnya kegedean, coba kirim versi yang lebih kecil ya';
+const VIDEO_LOAD_FAILED_REPLY =
+  'videonya belum kebaca, coba kirim ulang atau versi lebih pendek';
+const VIDEO_TOO_LARGE_REPLY =
+  'videonya kegedean, coba kirim versi yang lebih kecil ya';
+const VIDEO_TOO_LONG_REPLY = 'videonya kepanjangan, maksimal 60 detik ya';
 
 /**
  * Resolve the message node that holds WhatsApp media metadata.
@@ -116,6 +122,85 @@ const loadImageDataUrl = async (target) => {
 };
 
 /**
+ * Validate a video attachment before downloading it.
+ *
+ * @param {any} target
+ * @returns {{ mime: string } | { error: 'unsupported' | 'too_large' }}
+ */
+const getVideoMeta = (target) => {
+  const media = resolveMediaPayload(getMediaNode(target));
+  if (!media || media.mediaType !== 'video') {
+    return { error: 'unsupported' };
+  }
+
+  if (media.fileLength && media.fileLength > AI_CONFIG.MAX_VIDEO_BYTES) {
+    return { error: 'too_large' };
+  }
+
+  return { mime: String(media.mimetype || 'video/mp4').toLowerCase() };
+};
+
+/**
+ * Download one video and turn it into sampled frames plus a transcript.
+ *
+ * @param {any} target
+ * @returns {Promise<{ duration: number, frames: Array<{ dataUrl: string, timestamp: number }>, transcript: string } | { error: 'unsupported' | 'too_large' | 'too_long' | 'failed' }>}
+ */
+const loadVideo = async (target) => {
+  const meta = getVideoMeta(target);
+  if (meta.error) return meta;
+
+  try {
+    const downloaded = await target.download({
+      maxBytes: AI_CONFIG.MAX_VIDEO_BYTES,
+    });
+    if (!(downloaded instanceof Uint8Array) || downloaded.length === 0) {
+      return { error: 'failed' };
+    }
+    if (downloaded.length > AI_CONFIG.MAX_VIDEO_BYTES) {
+      return { error: 'too_large' };
+    }
+
+    return await prepareVideo(downloaded);
+  } catch (err) {
+    if (err instanceof VideoError) {
+      return { error: err.code };
+    }
+    logger.debug('[AI_CHAT]', `Video download failed: ${err.message}`);
+    return { error: 'failed' };
+  }
+};
+
+/**
+ * Explain what the model is looking at when a video is attached.
+ *
+ * @param {{ duration: number, frames: Array<{ timestamp: number }>, transcript: string }} video
+ * @returns {string}
+ */
+const buildVideoHint = ({ duration, frames, transcript }) => {
+  const seconds = frames
+    .map((frame) => Math.max(0, Math.round(frame.timestamp * 10) / 10))
+    .join(', ');
+  let hint = `Pesan ini berisi video berdurasi ${Math.max(1, Math.round(duration))} detik. Kamu melihat ${frames.length} frame pada detik ${seconds}.`;
+  if (transcript) {
+    hint += ` Transkrip audionya: "${transcript}"`;
+  }
+  return hint;
+};
+
+/**
+ * Pick the user-facing reply for a failed current-video load.
+ *
+ * @param {'unsupported' | 'too_large' | 'too_long' | 'failed'} error
+ * @returns {string}
+ */
+const videoFailureReply = (error) => {
+  if (error === 'too_long') return VIDEO_TOO_LONG_REPLY;
+  if (error === 'too_large') return VIDEO_TOO_LARGE_REPLY;
+  return VIDEO_LOAD_FAILED_REPLY;
+};
+
+/**
  * Natural Kurisu AI chat middleware.
  * Triggers only when:
  * 1. Bot is explicitly mentioned (@Kurisu)
@@ -157,9 +242,11 @@ export default async function botAiChatMiddleware(payload, ctx) {
     return;
   }
 
-  // 2. Media: images are attached to the model turn; other media stays a hint
+  // 2. Media: images/videos are attached to the model turn; other media stays a hint
   const hasCurrentImage = Boolean(msg.flags?.isImage);
   const hasQuotedImage = Boolean(msg.quoted?.flags?.isImage);
+  const hasCurrentVideo = Boolean(msg.flags?.isVideo);
+  const hasQuotedVideo = Boolean(msg.quoted?.flags?.isVideo);
   const isMediaMsg = Boolean(
     msg.flags?.isMedia ||
     msg.flags?.isImage ||
@@ -178,22 +265,23 @@ export default async function botAiChatMiddleware(payload, ctx) {
     if (hasCurrentImage) {
       // Keep the caption when present; otherwise give the model a short label.
       cleanedText = cleanedText || '[mengirim gambar]';
+    } else if (hasCurrentVideo) {
+      // Video is processed into frames, so keep the user's question as-is.
+      cleanedText = cleanedText || '[mengirim video]';
     } else {
-      const mediaType = msg.flags?.isVideo
-        ? 'video'
-        : msg.flags?.isAudio
-          ? 'voice note/audio'
-          : msg.flags?.isDocument
-            ? 'dokumen/file'
-            : 'media/file';
+      const mediaType = msg.flags?.isAudio
+        ? 'voice note/audio'
+        : msg.flags?.isDocument
+          ? 'dokumen/file'
+          : 'media/file';
 
       const captionContext = cleanedText
         ? ` dengan caption "${cleanedText}"`
         : '';
       cleanedText = `[mengirim ${mediaType}${captionContext}]`;
     }
-  } else if (!cleanedText && hasQuotedImage) {
-    cleanedText = '[membalas gambar]';
+  } else if (!cleanedText && (hasQuotedImage || hasQuotedVideo)) {
+    cleanedText = hasQuotedImage ? '[membalas gambar]' : '[membalas video]';
   }
 
   if (!cleanedText) return;
@@ -250,6 +338,18 @@ export default async function botAiChatMiddleware(payload, ctx) {
     const imageDataUrls = [];
     const mediaHints = [];
 
+    if (hasCurrentVideo) {
+      const currentVideo = await loadVideo(msg);
+      if (currentVideo.error) {
+        await msg.reply(videoFailureReply(currentVideo.error));
+        return;
+      }
+      imageDataUrls.push(
+        ...currentVideo.frames.map((frame) => frame.dataUrl)
+      );
+      mediaHints.push(buildVideoHint(currentVideo));
+    }
+
     if (hasCurrentImage) {
       const currentImage = await loadImageDataUrl(msg);
       if (currentImage.error) {
@@ -279,11 +379,8 @@ export default async function botAiChatMiddleware(payload, ctx) {
       }
     }
 
-    if (msg.quoted?.flags?.isVideo) {
+    if (hasQuotedVideo) {
       mediaHints.push('Pesan yang dibalas berisi video.');
-    }
-    if (msg.flags?.isVideo) {
-      mediaHints.push('Pesan ini berisi video.');
     }
 
     const groupRole = isGroup

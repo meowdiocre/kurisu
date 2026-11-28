@@ -254,7 +254,6 @@ Connection established (new login: false)
 | QR tidak muncul | Sesi sudah tersimpan | Cek `[AUTH] Found saved session` |
 | QR kedaluwarsa | Belum discan dalam masa berlaku | Restart service, ambil QR baru |
 | Bot diam di grup | Tidak di-tag/reply | Tag bot atau reply pesannya |
-| `no device sessions` saat call | Target tidak punya device | Cek nomor/LID target; bot mencoba LID lalu PN |
 | `ELEVENLABS... 402` | Voice library di free tier | Pakai premade voice/Google/Edge |
 | `AI_API_KEY is not configured` | `.env` belum diisi | Isi key dan restart |
 | TTS gagal | FFmpeg/edge-tts tidak ada | Cek `ffmpeg -version`, path `TTS_EDGE_BIN` |
@@ -262,6 +261,6 @@ Connection established (new login: false)
 ## Keamanan
 
 - `.env` dan `storage/` berisi kredensial; batasi permission (`600` untuk `.env`).
-- Command `eval`, `exec`, `call`, `say`, dan `join/leave` hanya untuk owner.
+- Command `eval`, `exec`, `say`, dan `join/leave` hanya untuk owner.
 - Jangan jalankan bot sebagai root jika tidak perlu; gunakan user khusus.
 - Rotasi API key yang pernah terekspos.

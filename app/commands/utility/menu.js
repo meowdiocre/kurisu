@@ -6,7 +6,7 @@ export default defineCommand({
   category: 'utility',
   description: 'Tampilkan daftar fitur, filter kategori, atau detail satu command',
   usage: 'menu [kategori|command <nama>]',
-  examples: ['menu owner', 'menu call', 'menu command owner'],
+  examples: ['menu owner', 'menu sticker', 'menu command owner'],
   middlewares: [],
 
   async execute(payload, ctx) {

@@ -53,7 +53,7 @@ export interface CommandDefinition {
 
   /**
    * Short usage pattern without the configured prefix.
-   * Example: `call <nomor|@tag|reply> [detik]`
+   * Example: `kick <@tag>`
    */
   readonly usage?: string
 

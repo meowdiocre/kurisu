@@ -182,7 +182,7 @@ export async function formatMenuText({
     return [
       `Kategori/command *${filter}* tidak ditemukan.`,
       `Kategori tersedia: ${categories}`,
-      `Contoh: \`${cleanPrefix}menu call\` atau \`${cleanPrefix}menu command owner\``,
+      `Contoh: \`${cleanPrefix}menu sticker\` atau \`${cleanPrefix}menu command owner\``,
     ].join('\n');
   }
 

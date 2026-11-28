@@ -22,7 +22,7 @@ Saat pertama jalan, bot meminta QR atau pairing code. Di server non-interaktif, 
 ## Fitur
 
 - **AI chat**: persona Kurisu, memory per chat, tool calling, fallback `[NO_REPLY]`.
-- **Vision**: gambar di pesan saat ini dan pesan yang dibalas ikut dikirim ke model multimodal.
+- **Vision**: gambar di pesan saat ini dan pesan yang dibalas ikut dikirim ke model multimodal; video saat ini diubah menjadi frame + transkrip audio.
 - **AI tools**: stiker, download media, reminder, info grup/member, catatan, dan command runner aman.
 - **Voice note**: Edge, Google, atau ElevenLabs.
 - **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman, mode akses.
@@ -69,7 +69,7 @@ Endpoint AI harus OpenAI-compatible, mendukung tool calling, dan menerima konten
 
 `run_bot_command` menjalankan command aman dengan guard yang sama seperti manual: kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping.
 
-`eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, `call`, dan `say` tidak diekspos ke AI; jalankan manual oleh owner.
+`eval`, `exec`, `owner`, `prefix`, `shortcut`, `persona`, `mode`, `join`, `leave`, `randkick`, dan `say` tidak diekspos ke AI; jalankan manual oleh owner.
 
 Downloader memakai VidsSave, lalu fallback tikwm (TikTok) dan yt-dlp. Stiker bisa langsung dibuat dari link TikTok/Instagram/YouTube.
 
@@ -84,9 +84,9 @@ Di grup, AI merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua p
 ## Catatan
 
 - Gunakan **Node 24+**; `better-sqlite3` bisa segfault di Node 20/22.
-- FFmpeg wajib untuk stiker/audio. `edge-tts` dan `yt-dlp` opsional.
+- FFmpeg wajib untuk stiker, audio, dan video. `edge-tts` dan `yt-dlp` opsional. Transkrip video butuh `ELEVENLABS_API_KEY`.
 - QR kedaluwarsa: restart service, ambil QR terbaru dari journal.
-- Gambar di pesan saat ini atau pesan yang dibalas dikirim ke model; video, audio, dan dokumen hanya disebut sebagai teks.
+- Gambar di pesan saat ini atau pesan yang dibalas dikirim ke model. Video di pesan saat ini dikirim sebagai frame + transkrip; video yang dibalas, audio, dan dokumen hanya disebut sebagai teks.
 - ElevenLabs 402: voice library butuh plan berbayar; pakai voice premade atau Edge/Google.
 
 ## Lisensi

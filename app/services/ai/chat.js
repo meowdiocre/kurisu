@@ -36,6 +36,16 @@ export const AI_CONFIG = {
   MAX_IMAGES_PER_MESSAGE: 2,
   IMAGE_MIME_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
 
+  // Video: sampled frames plus an audio transcript, never stored in history
+  MAX_VIDEO_BYTES: 16 * 1024 * 1024,
+  MAX_VIDEO_SECONDS: 60,
+  MAX_VIDEO_FRAMES: 8,
+  MIN_VIDEO_FRAMES: 3,
+  VIDEO_FRAME_INTERVAL_SECONDS: 5,
+  VIDEO_FRAME_MAX_WIDTH: 768,
+  VIDEO_FRAME_QUALITY: 4,
+  VIDEO_TRANSCRIPT_MAX_CHARS: 1200,
+
   // Tool calling budget per AI request
   MAX_TOOL_ROUNDS: 3,
   MAX_TOOL_CALLS: 4,
