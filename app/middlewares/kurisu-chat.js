@@ -2,6 +2,7 @@ import cache from '@kurisu/core/services/cache';
 import { RateLimiter } from '@kurisu/core/utils/rate-limiter';
 import logger from '@kurisu/core/utils/logger';
 import { delay } from '@kurisu/core/utils/common';
+import { resolveMediaPayload } from 'zapo-js';
 import { createChatCompletion } from '#app/services/ai/client.js';
 import {
   AI_CONFIG,
@@ -40,6 +41,79 @@ const isNoReply = (text) =>
 
 const aiRateLimiter = new RateLimiter(cache);
 const activeAiRequests = new Set();
+const IMAGE_MIME_TYPES = new Set(AI_CONFIG.IMAGE_MIME_TYPES);
+const IMAGE_LOAD_FAILED_REPLY = 'gambarnya belum kebaca, coba kirim ulang ya';
+const IMAGE_TOO_LARGE_REPLY =
+  'gambarnya kegedean, coba kirim versi yang lebih kecil ya';
+
+/**
+ * Resolve the message node that holds WhatsApp media metadata.
+ *
+ * @param {any} target
+ * @returns {any}
+ */
+const getMediaNode = (target) =>
+  target?._rawMessage ||
+  target?._rawPayload?.message ||
+  target?._rawPayload ||
+  target?.message ||
+  target;
+
+/**
+ * Validate an image attachment before downloading it.
+ *
+ * @param {any} target
+ * @returns {{ mime: string } | { error: 'unsupported' | 'too_large' }}
+ */
+const getImageMeta = (target) => {
+  const media = resolveMediaPayload(getMediaNode(target));
+  if (!media || media.mediaType !== 'image') {
+    return { error: 'unsupported' };
+  }
+
+  const mime = String(media.mimetype || '').toLowerCase();
+  if (!IMAGE_MIME_TYPES.has(mime)) {
+    return { error: 'unsupported' };
+  }
+
+  if (media.fileLength && media.fileLength > AI_CONFIG.MAX_IMAGE_BYTES) {
+    return { error: 'too_large' };
+  }
+
+  return { mime };
+};
+
+/**
+ * Download one image and encode it as a provider-ready data URL.
+ *
+ * @param {any} target
+ * @returns {Promise<{ dataUrl: string } | { error: 'unsupported' | 'too_large' | 'failed' }>}
+ */
+const loadImageDataUrl = async (target) => {
+  const meta = getImageMeta(target);
+  if (meta.error) return meta;
+
+  try {
+    const downloaded = await target.download({
+      maxBytes: AI_CONFIG.MAX_IMAGE_BYTES,
+    });
+    if (!(downloaded instanceof Uint8Array) || downloaded.length === 0) {
+      return { error: 'failed' };
+    }
+
+    const buffer = Buffer.from(downloaded);
+    if (buffer.length > AI_CONFIG.MAX_IMAGE_BYTES) {
+      return { error: 'too_large' };
+    }
+
+    return {
+      dataUrl: `data:${meta.mime};base64,${buffer.toString('base64')}`,
+    };
+  } catch (err) {
+    logger.debug('[AI_CHAT]', `Image download failed: ${err.message}`);
+    return { error: 'failed' };
+  }
+};
 
 /**
  * Natural Kurisu AI chat middleware.
@@ -83,7 +157,9 @@ export default async function botAiChatMiddleware(payload, ctx) {
     return;
   }
 
-  // 2. Reject media/files: describe media type and let AI generate natural excuse
+  // 2. Media: images are attached to the model turn; other media stays a hint
+  const hasCurrentImage = Boolean(msg.flags?.isImage);
+  const hasQuotedImage = Boolean(msg.quoted?.flags?.isImage);
   const isMediaMsg = Boolean(
     msg.flags?.isMedia ||
     msg.flags?.isImage ||
@@ -98,11 +174,12 @@ export default async function botAiChatMiddleware(payload, ctx) {
     cleanedText = cleanedText.replace(new RegExp(`@${num}`, 'gi'), '').trim();
   }
 
-  // If user sent a media file without text or with caption
   if (isMediaMsg) {
-    const mediaType = msg.flags?.isImage
-      ? 'foto/gambar'
-      : msg.flags?.isVideo
+    if (hasCurrentImage) {
+      // Keep the caption when present; otherwise give the model a short label.
+      cleanedText = cleanedText || '[mengirim gambar]';
+    } else {
+      const mediaType = msg.flags?.isVideo
         ? 'video'
         : msg.flags?.isAudio
           ? 'voice note/audio'
@@ -110,10 +187,13 @@ export default async function botAiChatMiddleware(payload, ctx) {
             ? 'dokumen/file'
             : 'media/file';
 
-    const captionContext = cleanedText
-      ? ` dengan caption "${cleanedText}"`
-      : '';
-    cleanedText = `[mengirim ${mediaType}${captionContext}]`;
+      const captionContext = cleanedText
+        ? ` dengan caption "${cleanedText}"`
+        : '';
+      cleanedText = `[mengirim ${mediaType}${captionContext}]`;
+    }
+  } else if (!cleanedText && hasQuotedImage) {
+    cleanedText = '[membalas gambar]';
   }
 
   if (!cleanedText) return;
@@ -167,15 +247,40 @@ export default async function botAiChatMiddleware(payload, ctx) {
       }
     } catch {}
 
+    const imageDataUrls = [];
     const mediaHints = [];
-    if (msg.quoted?.flags?.isImage) {
-      mediaHints.push('Pesan yang dibalas berisi gambar.');
+
+    if (hasCurrentImage) {
+      const currentImage = await loadImageDataUrl(msg);
+      if (currentImage.error) {
+        await msg.reply(
+          currentImage.error === 'too_large'
+            ? IMAGE_TOO_LARGE_REPLY
+            : IMAGE_LOAD_FAILED_REPLY
+        );
+        return;
+      }
+      imageDataUrls.push(currentImage.dataUrl);
+      mediaHints.push('Pesan ini berisi gambar yang bisa kamu lihat.');
     }
+
+    if (
+      hasQuotedImage &&
+      imageDataUrls.length < AI_CONFIG.MAX_IMAGES_PER_MESSAGE
+    ) {
+      const quotedImage = await loadImageDataUrl(msg.quoted);
+      if (quotedImage.error) {
+        mediaHints.push('Gambar di pesan yang dibalas gagal dimuat.');
+      } else {
+        imageDataUrls.push(quotedImage.dataUrl);
+        mediaHints.push(
+          'Pesan yang dibalas berisi gambar yang bisa kamu lihat.'
+        );
+      }
+    }
+
     if (msg.quoted?.flags?.isVideo) {
       mediaHints.push('Pesan yang dibalas berisi video.');
-    }
-    if (msg.flags?.isImage) {
-      mediaHints.push('Pesan ini berisi gambar.');
     }
     if (msg.flags?.isVideo) {
       mediaHints.push('Pesan ini berisi video.');
@@ -207,6 +312,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
       isGroup,
       prefixes: ctx.tableBot?.prefixes,
       mediaContext: mediaHints.join(' '),
+      imageDataUrls,
       groupRole,
       directAddress: isGroup,
       personaModes,

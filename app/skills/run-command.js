@@ -47,10 +47,6 @@ const DENIED_TRIGGERS = new Set([
   'masuk',
   'leave',
   'out',
-  'call',
-  'miscall',
-  'telepon',
-  'telfon',
   'say',
   'tts',
   'ngomong',
@@ -61,7 +57,7 @@ const DENIED_TRIGGERS = new Set([
 export default defineSkill({
   name: 'run_bot_command',
   description:
-    'Jalankan command Kurisu yang aman dengan guard yang sama seperti command manual. Gunakan untuk aksi grup (kick, warn, gmode, blockword, botaccess, welcome, goodbye, board, member, summary), catatan, reminder, stiker, download, menu, dan ping. Contoh: {"command":"kick","args":"628123456789 spam"}, {"command":"blockword","args":"add link:all"}, {"command":"botaccess","args":"admin"}. Jangan gunakan untuk eval, exec, owner, prefix, shortcut, persona, mode, join, leave, call, atau say.',
+    'Jalankan command Kurisu yang aman dengan guard yang sama seperti command manual. Gunakan untuk aksi grup (kick, warn, gmode, blockword, botaccess, welcome, goodbye, board, member, summary), catatan, reminder, stiker, download, menu, dan ping. Contoh: {"command":"kick","args":"628123456789 spam"}, {"command":"blockword","args":"add link:all"}, {"command":"botaccess","args":"admin"}. Jangan gunakan untuk eval, exec, owner, prefix, shortcut, persona, mode, join, leave, atau say.',
   parameters: {
     type: 'object',
     properties: {

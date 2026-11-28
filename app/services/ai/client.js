@@ -39,7 +39,7 @@ function truncateToolResult(value, maxChars) {
 /**
  * Call OpenAI-compatible chat completion endpoint via native fetch with Tool Calling support
  *
- * @param {Array<{ role: 'system' | 'user' | 'assistant' | 'tool', content?: string, tool_calls?: any[], tool_call_id?: string }>} messages
+ * @param {Array<{ role: 'system' | 'user' | 'assistant' | 'tool', content?: string | Array<object>, tool_calls?: any[], tool_call_id?: string }>} messages
  * @param {object} [options]
  * @param {number} [options.temperature]
  * @param {number} [options.maxTokens]

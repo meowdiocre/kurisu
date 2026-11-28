@@ -4,7 +4,7 @@
 > Regenerate dengan `npm run docs:commands`.
 
 Prefix default: `.`. Prefix bisa diubah lewat `.prefix`.
-Total: **30** command.
+Total: **29** command.
 
 ## downloader
 
@@ -42,7 +42,6 @@ Total: **30** command.
 |---|---|---|---|---|
 | `>` | `>`, `>>` | `> <kode js>` | owner | Jalankan kode JavaScript langsung dari WhatsApp (owner) |
 | `$` | `$` | `$ <perintah shell>` | owner | Jalankan perintah shell langsung dari WhatsApp (owner) |
-| `.call` | `.call`, `.miscall`, `.telepon`, `.telfon` | `.call <nomor\|@tag\|reply> [detik]` | owner | Telepon nomor WhatsApp selama N detik (owner) |
 | `.join` | `.join`, `.masuk` | `.join <link\|kode>` | owner | Masuk grup WhatsApp lewat link undangan atau kode (owner) |
 | `.leave` | `.leave`, `.out` | `.leave` | owner | Keluarkan bot dari grup saat ini (owner) |
 | `.mode` | `.mode` | `.mode <public\|self>` | owner | Atur mode operasional bot (public, self) |

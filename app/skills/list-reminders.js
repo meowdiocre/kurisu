@@ -27,11 +27,8 @@ export default defineSkill({
 
     const lines = reminders.map((reminder) => {
       const mode = reminder.mode === 'ai' ? 'AI' : 'statis';
-      const call = reminder.call_seconds
-        ? ` | miscall ${reminder.call_seconds} detik`
-        : '';
       const status = reminder.status === 'paused' ? ' | dijeda' : '';
-      return `- id ${reminder.id}: ${reminder.schedule_text || reminder.frequency} | ${reminder.message} | ${mode}${call}${status} | berikutnya ${formatReminderTime(reminder)}`;
+      return `- id ${reminder.id}: ${reminder.schedule_text || reminder.frequency} | ${reminder.message} | ${mode}${status} | berikutnya ${formatReminderTime(reminder)}`;
     });
 
     return ['Pengingat aktif:', ...lines].join('\n');

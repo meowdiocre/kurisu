@@ -31,6 +31,11 @@ export const AI_CONFIG = {
   // Reject oversized user messages before they reach the model
   MAX_USER_CHARS: 1500,
 
+  // Vision attachments: provider-native image_url parts, never stored in history
+  MAX_IMAGE_BYTES: 4 * 1024 * 1024,
+  MAX_IMAGES_PER_MESSAGE: 2,
+  IMAGE_MIME_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+
   // Tool calling budget per AI request
   MAX_TOOL_ROUNDS: 3,
   MAX_TOOL_CALLS: 4,
@@ -251,6 +256,27 @@ export async function buildCommandCatalog(prefixes = []) {
 }
 
 /**
+ * Build OpenAI-compatible user content. Plain text stays a string so
+ * text-only providers keep seeing the exact same payload as before.
+ *
+ * @param {string} text
+ * @param {string[]} [imageDataUrls]
+ * @returns {string | Array<{ type: 'text', text: string } | { type: 'image_url', image_url: { url: string } }>}
+ */
+export function buildUserContent(text, imageDataUrls = []) {
+  const images = Array.isArray(imageDataUrls)
+    ? imageDataUrls.filter((url) => typeof url === 'string' && url)
+    : [];
+
+  if (images.length === 0) return text;
+
+  return [
+    { type: 'text', text },
+    ...images.map((url) => ({ type: 'image_url', image_url: { url } })),
+  ];
+}
+
+/**
  * Build messages payload ready for OpenAI completion
  * @param {object} param0
  * @param {string} param0.chatId
@@ -259,10 +285,11 @@ export async function buildCommandCatalog(prefixes = []) {
  * @param {boolean} [param0.isGroup]
  * @param {string[]} [param0.prefixes] - Configured bot prefixes for menu context
  * @param {string} [param0.mediaContext] - Media hints for skills that need attachments
+ * @param {string[]} [param0.imageDataUrls] - Image data URLs for the current turn
  * @param {'admin' | 'member' | ''} [param0.groupRole] - The bot's real role in the group
  * @param {boolean} [param0.directAddress] - The message mentioned or replied to the bot
  * @param {string[]} [param0.personaModes] - Active persona modes for this sender
- * @returns {Promise<Array<{ role: 'system' | 'user' | 'assistant', content: string }>>}
+ * @returns {Promise<Array<{ role: 'system' | 'user' | 'assistant', content: string | Array<object> }>>}
  */
 export async function buildChatPayload({
   chatId,
@@ -271,13 +298,14 @@ export async function buildChatPayload({
   isGroup = false,
   prefixes = [],
   mediaContext = '',
+  imageDataUrls = [],
   groupRole = '',
   directAddress = false,
   personaModes = [],
 }) {
   const history = await getChatHistory(chatId);
 
-  /** @type {Array<{ role: 'system' | 'user' | 'assistant', content: string }>} */
+  /** @type {Array<{ role: 'system' | 'user' | 'assistant', content: string | Array<object> }>} */
   const messages = [
     { role: 'system', content: getSystemPrompt(personaModes) },
   ];
@@ -336,7 +364,7 @@ export async function buildChatPayload({
 
   messages.push({
     role: 'user',
-    content: formattedUserMessage,
+    content: buildUserContent(formattedUserMessage, imageDataUrls),
   });
 
   return messages;

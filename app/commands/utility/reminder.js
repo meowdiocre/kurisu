@@ -1,7 +1,6 @@
 import { defineCommand } from '#app/services/bot/index.js';
 import {
   MAX_ACTIVE_REMINDERS,
-  MAX_CALL_SECONDS,
   MAX_REMINDER_MESSAGE_LENGTH,
   createReminder,
   deleteReminder,
@@ -25,20 +24,6 @@ function extractAiFlag(text) {
 }
 
 /**
- * Extract and strip the --call=<seconds> flag from reminder input.
- *
- * @param {string} text
- * @returns {{ text: string, callSeconds: number }}
- */
-function extractCallFlag(text) {
-  const match = text.match(/--call(?:=|\s+)(\d+)/i);
-  return {
-    callSeconds: match ? Number(match[1]) : 0,
-    text: text.replace(/--call(?:=|\s+)\d+/gi, ' ').trim(),
-  };
-}
-
-/**
  * Shorten a reminder message for list output.
  *
  * @param {string} message
@@ -57,7 +42,7 @@ export default defineCommand({
   category: 'utility',
   description: 'Buat, lihat, jeda, dan hapus pengingat pribadi',
   usage: 'reminder <add|list|del|pause> [...]',
-  examples: ['reminder add 10m minum obat', 'reminder list', 'reminder add 20:30 --call=5 rapat'],
+  examples: ['reminder add 10m minum obat', 'reminder list', 'reminder add 20:30 rapat'],
 
   async execute(payload, ctx) {
     const { msg } = ctx;
@@ -79,16 +64,13 @@ export default defineCommand({
           `• \`${cmd} daily 08:00 | minum obat\``,
           `• \`${cmd} monthly 1 09:00 | bayar kos\``,
           `• \`${cmd} daily 08:00 --ai | ingetin minum obat\``,
-          `• \`${cmd} 10m --call=5 | bangunin gue\``,
-          `• \`${cmd} daily 08:00 --call=5 --ai | ingetin minum obat\``,
           '',
           `• \`${cmd} list\``,
           `• \`${cmd} pause <id>\``,
           `• \`${cmd} resume <id>\``,
           `• \`${cmd} del <id>\``,
           '',
-          `_Flag \`--ai\` membuat pesan dirapikan Kurisu. \`--call=N\` miscall N detik dulu, lalu kirim pesan._`,
-          `_Di grup, \`--call\` mengirim pesan ke DM pembuat, bukan ke grup._`,
+          `_Flag \`--ai\` membuat pesan dirapikan Kurisu._`,
         ].join('\n')
       );
 
@@ -108,11 +90,8 @@ export default defineCommand({
 
       const lines = reminders.map((reminder) => {
         const mode = reminder.mode === 'ai' ? 'AI' : 'static';
-        const call = reminder.call_seconds
-          ? ` | call ${reminder.call_seconds}s`
-          : '';
         const status = reminder.status === 'paused' ? ' | paused' : '';
-        return `• \`${reminder.id}\` ${reminder.schedule_text || reminder.frequency} | ${shorten(reminder.message)} | ${mode}${call}${status} | ${formatReminderTime(reminder)}`;
+        return `• \`${reminder.id}\` ${reminder.schedule_text || reminder.frequency} | ${shorten(reminder.message)} | ${mode}${status} | ${formatReminderTime(reminder)}`;
       });
 
       return msg.reply(['｢ *pengingat kamu* ｣', ...lines].join('\n'));
@@ -171,19 +150,12 @@ export default defineCommand({
 
     const scheduleAi = extractAiFlag(argsText.slice(0, pipeIndex));
     const messageAi = extractAiFlag(argsText.slice(pipeIndex + 1));
-    const schedulePart = extractCallFlag(scheduleAi.text);
-    const messagePart = extractCallFlag(messageAi.text);
     const ai = scheduleAi.ai || messageAi.ai;
-    const callSeconds = schedulePart.callSeconds || messagePart.callSeconds;
-    const schedule = schedulePart.text;
-    const message = messagePart.text;
+    const schedule = scheduleAi.text;
+    const message = messageAi.text;
 
     if (!schedule || !message) {
       return sendGuide();
-    }
-
-    if (callSeconds < 0 || callSeconds > MAX_CALL_SECONDS) {
-      return msg.reply(`Durasi miscall harus 1-${MAX_CALL_SECONDS} detik.`);
     }
 
     if (message.length > MAX_REMINDER_MESSAGE_LENGTH) {
@@ -200,7 +172,6 @@ export default defineCommand({
       message,
       schedule,
       ai,
-      callSeconds,
     });
 
     if (!result.ok) {
@@ -217,14 +188,6 @@ export default defineCommand({
           `Pesan pengingat wajib diisi, maksimal ${MAX_REMINDER_MESSAGE_LENGTH} karakter.`
         );
       }
-      if (result.error === 'invalid_call_seconds') {
-        return msg.reply(`Durasi miscall harus 1-${MAX_CALL_SECONDS} detik.`);
-      }
-      if (result.error === 'call_requires_pn') {
-        return msg.reply(
-          'Miscall butuh nomor WhatsApp (PN), bukan LID. Coba dari chat private.'
-        );
-      }
       return msg.reply('Gagal membuat pengingat.');
     }
 
@@ -237,9 +200,6 @@ export default defineCommand({
         `• Pesan: ${reminder.message}`,
         `• Berikutnya: \`${formatReminderTime(reminder)}\``,
         `• Mode: \`${reminder.mode === 'ai' ? 'AI Kurisu' : 'static'}\``,
-        ...(reminder.call_seconds
-          ? [`• Miscall: \`${reminder.call_seconds} detik\``]
-          : []),
       ].join('\n')
     );
   },

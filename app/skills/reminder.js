@@ -27,13 +27,6 @@ export default defineSkill({
         description:
           'Set true when the user wants Kurisu to rewrite the reminder naturally at delivery time instead of sending the exact static text.',
       },
-      call_seconds: {
-        type: 'integer',
-        minimum: 1,
-        maximum: 30,
-        description:
-          'If the user asks to be called or miscalled, ring for this many seconds before sending the reminder text. Omit for message-only reminders.',
-      },
     },
     required: ['schedule', 'message'],
   },
@@ -52,7 +45,6 @@ export default defineSkill({
       message: args?.message,
       schedule: args?.schedule,
       ai: Boolean(args?.ai),
-      callSeconds: Number(args?.call_seconds || 0),
     });
 
     if (!result.ok) {
@@ -65,19 +57,10 @@ export default defineSkill({
       if (result.error === 'invalid_message') {
         return `Pesan pengingat harus 1-${MAX_REMINDER_MESSAGE_LENGTH} karakter.`;
       }
-      if (result.error === 'invalid_call_seconds') {
-        return 'Durasi miscall tidak valid. Gunakan 1-30 detik.';
-      }
-      if (result.error === 'call_requires_pn') {
-        return 'Miscall butuh JID nomor telepon, bukan LID.';
-      }
       return 'Gagal membuat pengingat.';
     }
 
     const reminder = result.reminder;
-    const callDetail = reminder.call_seconds
-      ? ` Miscall: ${reminder.call_seconds} detik.`
-      : '';
-    return `Pengingat dijadwalkan. Berikutnya: ${formatReminderTime(reminder)}.${callDetail} Balas user natural dengan gaya ${KURISU.name}, satu kalimat pendek. Jangan sebut id atau field teknis kecuali user minta.`;
+    return `Pengingat dijadwalkan. Berikutnya: ${formatReminderTime(reminder)}. Balas user natural dengan gaya ${KURISU.name}, satu kalimat pendek. Jangan sebut id atau field teknis kecuali user minta.`;
   },
 });

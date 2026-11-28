@@ -1,6 +1,6 @@
 # Kurisu
 
-Bot WhatsApp Node.js dengan AI chat, manajemen grup, catatan, pengingat, stiker, downloader, miscall, dan voice note.
+Bot WhatsApp Node.js dengan AI chat multimodal, manajemen grup, catatan, pengingat, stiker, downloader, dan voice note.
 
 Fork dari [`ilsyaa/nakiri`](https://github.com/ilsyaa/nakiri), di-rebrand dan dikembangkan sebagai **Kurisu**.
 
@@ -22,11 +22,12 @@ Saat pertama jalan, bot meminta QR atau pairing code. Di server non-interaktif, 
 ## Fitur
 
 - **AI chat**: persona Kurisu, memory per chat, tool calling, fallback `[NO_REPLY]`.
-- **AI tools**: stiker, download media, reminder, info grup/member, catatan, miscall, dan command runner aman.
+- **Vision**: gambar di pesan saat ini dan pesan yang dibalas ikut dikirim ke model multimodal.
+- **AI tools**: stiker, download media, reminder, info grup/member, catatan, dan command runner aman.
 - **Voice note**: Edge, Google, atau ElevenLabs.
 - **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman, mode akses.
 - **Utility**: catatan pribadi/grup, reminder, ping, menu.
-- **Owner**: eval/exec, join/leave, owner/prefix/shortcut/persona, miscall, TTS manual.
+- **Owner**: eval/exec, join/leave, owner/prefix/shortcut/persona, TTS manual.
 - **Persisten**: sesi WhatsApp di `storage/`; SQLite default, MySQL opsional.
 
 ## Konfigurasi inti
@@ -62,9 +63,9 @@ Daftar lengkap: [docs/COMMANDS.md](docs/COMMANDS.md).
 
 ## AI
 
-Endpoint AI harus OpenAI-compatible dan mendukung tool calling. Tool yang terdaftar:
+Endpoint AI harus OpenAI-compatible, mendukung tool calling, dan menerima konten multimodal `image_url` untuk vision. Tool yang terdaftar:
 
-`create_sticker`, `download_media`, `run_bot_command`, `call_number`, `create_reminder`, `list_reminders`, `cancel_reminder`, `get_group_info`, `get_member_info`, `save_note`, `get_note`, `list_notes`, `delete_note`.
+`create_sticker`, `download_media`, `run_bot_command`, `create_reminder`, `list_reminders`, `cancel_reminder`, `get_group_info`, `get_member_info`, `save_note`, `get_note`, `list_notes`, `delete_note`.
 
 `run_bot_command` menjalankan command aman dengan guard yang sama seperti manual: kick, warn, gmode, blockword, welcome, goodbye, board, member, summary, note, gnote, reminder, sticker, take, toimg, download, menu, ping.
 
@@ -85,7 +86,7 @@ Di grup, AI merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua p
 - Gunakan **Node 24+**; `better-sqlite3` bisa segfault di Node 20/22.
 - FFmpeg wajib untuk stiker/audio. `edge-tts` dan `yt-dlp` opsional.
 - QR kedaluwarsa: restart service, ambil QR terbaru dari journal.
-- Miscall `no device sessions`: target tidak punya device WhatsApp yang bisa dihubungi.
+- Gambar di pesan saat ini atau pesan yang dibalas dikirim ke model; video, audio, dan dokumen hanya disebut sebagai teks.
 - ElevenLabs 402: voice library butuh plan berbayar; pakai voice premade atau Edge/Google.
 
 ## Lisensi
