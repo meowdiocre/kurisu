@@ -22,7 +22,7 @@ Saat pertama jalan, bot meminta QR atau pairing code. Di server non-interaktif, 
 ## Fitur
 
 - **AI chat**: persona Kurisu, memory per chat, tool calling, fallback `[NO_REPLY]`.
-- **Vision**: gambar di pesan saat ini dan pesan yang dibalas ikut dikirim ke model multimodal; video saat ini diubah menjadi frame + transkrip audio.
+- **Vision**: gambar di pesan saat ini, pesan yang dibalas, dan link media yang didukung ikut dikirim ke model multimodal; video diubah menjadi frame + transkrip audio.
 - **AI tools**: stiker, download media, reminder, info grup/member, catatan, dan command runner aman.
 - **Voice note**: Edge, Google, atau ElevenLabs.
 - **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman, mode akses.

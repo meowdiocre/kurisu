@@ -19,6 +19,7 @@ import {
   wantsVoiceReply,
 } from '#app/services/tts.js';
 import { prepareVideo, VideoError } from '#app/services/ai/video.js';
+import { extractMediaUrl, loadLinkedMedia } from '#app/services/ai/link-media.js';
 
 /**
  * Generate a random integer between min and max inclusive
@@ -175,13 +176,14 @@ const loadVideo = async (target) => {
  * Explain what the model is looking at when a video is attached.
  *
  * @param {{ duration: number, frames: Array<{ timestamp: number }>, transcript: string }} video
+ * @param {string} [label]
  * @returns {string}
  */
-const buildVideoHint = ({ duration, frames, transcript }) => {
+const buildVideoHint = ({ duration, frames, transcript }, label = 'Pesan ini') => {
   const seconds = frames
     .map((frame) => Math.max(0, Math.round(frame.timestamp * 10) / 10))
     .join(', ');
-  let hint = `Pesan ini berisi video berdurasi ${Math.max(1, Math.round(duration))} detik. Kamu melihat ${frames.length} frame pada detik ${seconds}.`;
+  let hint = `${label} berisi video berdurasi ${Math.max(1, Math.round(duration))} detik. Kamu melihat ${frames.length} frame pada detik ${seconds}.`;
   if (transcript) {
     hint += ` Transkrip audionya: "${transcript}"`;
   }
@@ -381,6 +383,50 @@ export default async function botAiChatMiddleware(payload, ctx) {
 
     if (hasQuotedVideo) {
       mediaHints.push('Pesan yang dibalas berisi video.');
+    }
+
+    // Links to supported platforms are fetched before the model turn so the
+    // model can actually see the clip/image instead of just reading the URL.
+    const quotedText = msg.quoted?.body?.rawText || '';
+    const currentLink = extractMediaUrl(cleanedText);
+    const quotedLink = currentLink ? '' : extractMediaUrl(quotedText);
+    const linkUrl = currentLink || quotedLink;
+    const linkSource = currentLink ? 'current' : 'quoted';
+
+    if (
+      linkUrl &&
+      !hasCurrentVideo &&
+      !hasCurrentImage &&
+      !hasQuotedVideo &&
+      !hasQuotedImage &&
+      imageDataUrls.length < AI_CONFIG.MAX_IMAGES_PER_MESSAGE
+    ) {
+      const linked = await loadLinkedMedia(linkUrl);
+      if (linked.kind === 'video') {
+        imageDataUrls.push(...linked.frames.map((frame) => frame.dataUrl));
+        mediaHints.push(
+          `${buildVideoHint(
+            linked,
+            linkSource === 'current' ? 'Pesan ini' : 'Pesan yang dibalas'
+          )} Video ini berasal dari link yang dibagikan; jangan panggil tool download untuk link ini. User membagikan media ini dan mengharapkan tanggapan.`
+        );
+      } else if (linked.kind === 'image') {
+        imageDataUrls.push(linked.dataUrl);
+        mediaHints.push(
+          `${
+            linkSource === 'current' ? 'Pesan ini' : 'Pesan yang dibalas'
+          } berisi gambar dari link yang bisa kamu lihat. Jangan panggil tool download untuk link ini. User membagikan media ini dan mengharapkan tanggapan.`
+        );
+      } else {
+        mediaHints.push(
+          `${
+            linkSource === 'current'
+              ? 'Media dari link'
+              : 'Media dari link di pesan yang dibalas'
+          } ${linked.error === 'too_long' ? 'durasinya lebih dari 60 detik, jadi belum bisa dilihat.' : linked.error === 'too_large' ? 'terlalu besar untuk dilihat.' : 'gagal dimuat.'}`
+        );
+      }
+      logger.debug('[AI_LINK]', `Link media ${linked.kind || linked.error}: ${linkUrl}`);
     }
 
     const groupRole = isGroup
