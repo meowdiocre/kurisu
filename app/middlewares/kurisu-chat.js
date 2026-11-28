@@ -348,6 +348,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
     const imageDataUrls = [];
     const mediaHints = [];
     let mediaIngested = false;
+    let freshMediaIngested = false;
 
     if (hasCurrentVideo) {
       const currentVideo = await loadVideo(msg);
@@ -360,6 +361,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
       );
       mediaHints.push(buildVideoHint(currentVideo));
       mediaIngested = true;
+      freshMediaIngested = true;
     }
 
     if (hasCurrentImage) {
@@ -375,6 +377,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
       imageDataUrls.push(currentImage.dataUrl);
       mediaHints.push('Pesan ini berisi gambar yang bisa kamu lihat.');
       mediaIngested = true;
+      freshMediaIngested = true;
     }
 
     if (
@@ -390,6 +393,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
           'Pesan yang dibalas berisi gambar yang bisa kamu lihat.'
         );
         mediaIngested = true;
+        freshMediaIngested = true;
       }
     }
 
@@ -423,6 +427,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
           )} Video ini berasal dari link yang dibagikan; jangan panggil tool download untuk link ini. User membagikan media ini dan mengharapkan tanggapan.`
         );
         mediaIngested = true;
+        freshMediaIngested = true;
       } else if (linked.kind === 'image') {
         imageDataUrls.push(linked.dataUrl);
         mediaHints.push(
@@ -431,6 +436,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
           } berisi gambar dari link yang bisa kamu lihat. Jangan panggil tool download untuk link ini. User membagikan media ini dan mengharapkan tanggapan.`
         );
         mediaIngested = true;
+        freshMediaIngested = true;
       } else {
         mediaHints.push(
           `${
@@ -448,7 +454,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
         cleanedText
       );
 
-    if (mediaIngested && imageDataUrls.length > 0) {
+    if (freshMediaIngested && imageDataUrls.length > 0) {
       await rememberMediaContext(msg.chat, {
         url: linkUrl,
         hint: mediaHints
@@ -473,6 +479,11 @@ export default async function botAiChatMiddleware(payload, ctx) {
           `Media terakhir yang kamu lihat di percakapan ini: ${remembered.hint} Jawab pertanyaan lanjutan dari isi media itu; jangan panggil tool download dan jangan minta user mengirim ulang media yang sama.`
         );
         mediaIngested = true;
+        await rememberMediaContext(msg.chat, {
+          url: remembered.url,
+          hint: remembered.hint,
+          images: remembered.images,
+        });
         logger.debug(
           '[AI_LINK]',
           `Reused remembered media in ${msg.chat}${remembered.url ? `: ${remembered.url}` : ''}`

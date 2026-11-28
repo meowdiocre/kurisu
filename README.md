@@ -22,7 +22,7 @@ Saat pertama jalan, bot meminta QR atau pairing code. Di server non-interaktif, 
 ## Fitur
 
 - **AI chat**: persona Kurisu, memory per chat, tool calling, fallback `[NO_REPLY]`.
-- **Vision**: gambar di pesan saat ini, pesan yang dibalas, dan link media yang didukung ikut dikirim ke model multimodal; video diubah menjadi frame + transkrip audio.
+- **Vision**: gambar di pesan saat ini, pesan yang dibalas, dan link media yang didukung ikut dikirim ke model multimodal; video diubah menjadi frame + transkrip audio. Media terakhir diingat per chat (20 menit) supaya pertanyaan lanjutan tetap dijawab dari isi media, bukan ditebak atau diminta kirim ulang.
 - **AI tools**: stiker, download media, reminder, info grup/member, catatan, dan command runner aman.
 - **Voice note**: Edge, Google, atau ElevenLabs.
 - **Grup**: welcome/goodbye, kick/warn, blockword, leaderboard, rangkuman, mode akses.
@@ -87,6 +87,8 @@ Di grup, AI merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua p
 - FFmpeg wajib untuk stiker, audio, dan video. `edge-tts` dan `yt-dlp` opsional. Transkrip video butuh `ELEVENLABS_API_KEY`.
 - QR kedaluwarsa: restart service, ambil QR terbaru dari journal.
 - Gambar di pesan saat ini, pesan yang dibalas, dan link media yang didukung dikirim ke model. Video di pesan saat ini atau dari link dikirim sebagai frame + transkrip; video yang dibalas, audio, dan dokumen hanya disebut sebagai teks.
+- Media yang sudah dilihat disimpan 20 menit per chat. Selama itu `download_media` disembunyikan dari model agar video/gambar tidak dikirim ulang; tool kembali tersedia kalau user minta download/simpan/kirim ulang secara eksplisit.
+- `AI_TIMEOUT_MS` (default 120000) membatalkan request model yang menggantung supaya lock per user tidak menahan pesan berikutnya.
 - ElevenLabs 402: voice library butuh plan berbayar; pakai voice premade atau Edge/Google.
 
 ## Lisensi
