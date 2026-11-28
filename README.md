@@ -86,7 +86,7 @@ Di grup, AI merespons saat bot di-tag atau pesannya reply ke bot. Di DM, semua p
 - Gunakan **Node 24+**; `better-sqlite3` bisa segfault di Node 20/22.
 - FFmpeg wajib untuk stiker, audio, dan video. `edge-tts` dan `yt-dlp` opsional. Transkrip video butuh `ELEVENLABS_API_KEY`.
 - QR kedaluwarsa: restart service, ambil QR terbaru dari journal.
-- Gambar di pesan saat ini atau pesan yang dibalas dikirim ke model. Video di pesan saat ini dikirim sebagai frame + transkrip; video yang dibalas, audio, dan dokumen hanya disebut sebagai teks.
+- Gambar di pesan saat ini, pesan yang dibalas, dan link media yang didukung dikirim ke model. Video di pesan saat ini atau dari link dikirim sebagai frame + transkrip; video yang dibalas, audio, dan dokumen hanya disebut sebagai teks.
 - ElevenLabs 402: voice library butuh plan berbayar; pakai voice premade atau Edge/Google.
 
 ## Lisensi
