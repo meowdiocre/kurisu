@@ -111,14 +111,28 @@ export async function createChatCompletion(messages, options = {}) {
       bodyPayload.tool_choice = 'auto';
     }
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(bodyPayload),
-    });
+    const timeoutMs =
+      Number(process.env.AI_TIMEOUT_MS) > 0
+        ? Number(process.env.AI_TIMEOUT_MS)
+        : 120000;
+
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(bodyPayload),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (err) {
+      if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+        throw new Error(`AI request timed out after ${timeoutMs}ms`);
+      }
+      throw err;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

@@ -9,6 +9,8 @@ import {
   buildChatPayload,
   appendChatHistory,
   sanitizeAiResponse,
+  rememberMediaContext,
+  getRememberedMediaContext,
 } from '#app/services/ai/chat.js';
 import { getSkillDefinitions, executeSkill } from '#app/skills/index.js';
 import { extractMentionsFromText } from '#app/services/bot/index.js';
@@ -183,7 +185,7 @@ const buildVideoHint = ({ duration, frames, transcript }, label = 'Pesan ini') =
   const seconds = frames
     .map((frame) => Math.max(0, Math.round(frame.timestamp * 10) / 10))
     .join(', ');
-  let hint = `${label} berisi video berdurasi ${Math.max(1, Math.round(duration))} detik. Kamu melihat ${frames.length} frame pada detik ${seconds}.`;
+  let hint = `${label} berisi video berdurasi ${Math.max(1, Math.round(duration))} detik. Kamu melihat ${frames.length} frame pada detik ${seconds}; frame itu adalah isi videonya, jadi pakai untuk menjawab detail seperti menu, harga, atau teks yang terlihat.`;
   if (transcript) {
     hint += ` Transkrip audionya: "${transcript}"`;
   }
@@ -303,7 +305,13 @@ export default async function botAiChatMiddleware(payload, ctx) {
   const rateIdentity =
     msg.sender?.id || msg.sender?.pn || msg.sender?.lid || msg.chat;
   const lockKey = `user:${rateIdentity}`;
-  if (activeAiRequests.has(lockKey)) return;
+  if (activeAiRequests.has(lockKey)) {
+    logger.debug(
+      '[AI_CHAT]',
+      `Skipped message from ${rateIdentity} in ${msg.chat}: previous request still running`
+    );
+    return;
+  }
 
   activeAiRequests.add(lockKey);
 
@@ -339,6 +347,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
 
     const imageDataUrls = [];
     const mediaHints = [];
+    let mediaIngested = false;
 
     if (hasCurrentVideo) {
       const currentVideo = await loadVideo(msg);
@@ -350,6 +359,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
         ...currentVideo.frames.map((frame) => frame.dataUrl)
       );
       mediaHints.push(buildVideoHint(currentVideo));
+      mediaIngested = true;
     }
 
     if (hasCurrentImage) {
@@ -364,6 +374,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
       }
       imageDataUrls.push(currentImage.dataUrl);
       mediaHints.push('Pesan ini berisi gambar yang bisa kamu lihat.');
+      mediaIngested = true;
     }
 
     if (
@@ -378,6 +389,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
         mediaHints.push(
           'Pesan yang dibalas berisi gambar yang bisa kamu lihat.'
         );
+        mediaIngested = true;
       }
     }
 
@@ -410,6 +422,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
             linkSource === 'current' ? 'Pesan ini' : 'Pesan yang dibalas'
           )} Video ini berasal dari link yang dibagikan; jangan panggil tool download untuk link ini. User membagikan media ini dan mengharapkan tanggapan.`
         );
+        mediaIngested = true;
       } else if (linked.kind === 'image') {
         imageDataUrls.push(linked.dataUrl);
         mediaHints.push(
@@ -417,6 +430,7 @@ export default async function botAiChatMiddleware(payload, ctx) {
             linkSource === 'current' ? 'Pesan ini' : 'Pesan yang dibalas'
           } berisi gambar dari link yang bisa kamu lihat. Jangan panggil tool download untuk link ini. User membagikan media ini dan mengharapkan tanggapan.`
         );
+        mediaIngested = true;
       } else {
         mediaHints.push(
           `${
@@ -427,6 +441,43 @@ export default async function botAiChatMiddleware(payload, ctx) {
         );
       }
       logger.debug('[AI_LINK]', `Link media ${linked.kind || linked.error}: ${linkUrl}`);
+    }
+
+    const refersToPreviousMedia =
+      /\b(video|vidio|gambar|foto|menunya|harganya|paling murah|yang tadi)\b/i.test(
+        cleanedText
+      );
+
+    if (mediaIngested && imageDataUrls.length > 0) {
+      await rememberMediaContext(msg.chat, {
+        url: linkUrl,
+        hint: mediaHints
+          .join(' ')
+          .replace(/\bPesan ini\b/g, 'Media yang dibagikan'),
+        images: imageDataUrls,
+      });
+    } else if (
+      !isGroup ||
+      msg.quoted?.flags?.fromMe ||
+      refersToPreviousMedia
+    ) {
+      // A reply to the bot (or a DM follow-up) often refers to the clip the bot
+      // just watched. Reuse that media instead of answering blind or asking the
+      // user to send it again.
+      const remembered = await getRememberedMediaContext(msg.chat);
+      if (remembered) {
+        if (imageDataUrls.length === 0) {
+          imageDataUrls.push(...remembered.images);
+        }
+        mediaHints.push(
+          `Media terakhir yang kamu lihat di percakapan ini: ${remembered.hint} Jawab pertanyaan lanjutan dari isi media itu; jangan panggil tool download dan jangan minta user mengirim ulang media yang sama.`
+        );
+        mediaIngested = true;
+        logger.debug(
+          '[AI_LINK]',
+          `Reused remembered media in ${msg.chat}${remembered.url ? `: ${remembered.url}` : ''}`
+        );
+      }
     }
 
     const groupRole = isGroup
@@ -461,7 +512,26 @@ export default async function botAiChatMiddleware(payload, ctx) {
       personaModes,
     });
 
-    const skillContext = { client, msg, payload, ctx };
+    const explicitDownload =
+      /\b(download|unduh|simpan|save|kirim(?:\s+ulang)?|send|resend|re-?send|kasih\s+(?:video|gambar|foto)|ambil\s+(?:video|gambar|foto))\b/i.test(
+        cleanedText || rawText
+      );
+    const skillContext = {
+      client,
+      msg,
+      payload,
+      ctx,
+      mediaIngested,
+      explicitDownload,
+    };
+    const skillDefinitions = getSkillDefinitions().filter(
+      (definition) =>
+        !(
+          mediaIngested &&
+          !explicitDownload &&
+          definition?.function?.name === 'download_media'
+        )
+    );
     const completionOptions = {
       temperature: AI_CONFIG.TEMPERATURE,
       maxTokens: AI_CONFIG.MAX_TOKENS,
@@ -469,13 +539,14 @@ export default async function botAiChatMiddleware(payload, ctx) {
       maxToolCalls: AI_CONFIG.MAX_TOOL_CALLS,
       maxToolResultChars: AI_CONFIG.MAX_TOOL_RESULT_CHARS,
       emptyAsNoReply: true,
-      tools: getSkillDefinitions(),
+      tools: skillDefinitions,
       executeTool: (name, rawArgs) => executeSkill(name, rawArgs, skillContext),
     };
 
     // Group chat only reaches this point through a direct mention or reply.
     // Retry once when the provider returns an empty response. An explicit
     // [NO_REPLY] is respected so closing messages stay silent without typing.
+    const completionStartedAt = Date.now();
     let replyContent = await createChatCompletion(
       messagesPayload,
       completionOptions
@@ -499,6 +570,11 @@ export default async function botAiChatMiddleware(payload, ctx) {
         completionOptions
       );
     }
+
+    logger.debug(
+      '[AI_CHAT]',
+      `Completion ${replyContent?.length || 0} chars in ${Date.now() - completionStartedAt}ms in ${msg.chat}`
+    );
 
     // A skill may have executed a command that already replied to the chat.
     if (ctx.suppressAiReply) {
@@ -599,6 +675,11 @@ export default async function botAiChatMiddleware(payload, ctx) {
       } else if (effectiveVoiceMode !== 'both') {
         await sendText();
       }
+
+      logger.debug(
+        '[AI_CHAT]',
+        `Reply sent (${finalReply.length} chars${voice ? ', voice' : ''}) in ${msg.chat}`
+      );
 
       // Stop event propagation so commands/further handlers do not trigger
       if (typeof ctx.stop === 'function') {

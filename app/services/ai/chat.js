@@ -130,6 +130,7 @@ export function sanitizeAiResponse(text) {
 }
 
 const dialogCache = cache.namespace('kurisu_ai_dialog');
+const mediaCache = cache.namespace('kurisu_ai_media');
 
 /**
  * Truncate text to a hard character limit.
@@ -190,6 +191,43 @@ export async function getChatHistory(chatId) {
   if (!chatId) return [];
   const history = await dialogCache.get(chatId);
   return Array.isArray(history) ? trimHistory(history) : [];
+}
+
+/**
+ * Remember the media the model just saw so follow-up questions in the same
+ * conversation can still be answered without fetching or sending it again.
+ *
+ * @param {string} chatId
+ * @param {{ url?: string, hint: string, images?: string[] }} media
+ */
+export async function rememberMediaContext(chatId, media) {
+  if (!chatId || !media?.hint) return;
+  mediaCache.set(
+    chatId,
+    {
+      url: media.url || '',
+      hint: media.hint,
+      images: Array.isArray(media.images) ? media.images.slice(0, 8) : [],
+    },
+    AI_CONFIG.MEMORY_TTL
+  );
+}
+
+/**
+ * Read the media remembered for this conversation, if any.
+ *
+ * @param {string} chatId
+ * @returns {Promise<{ url: string, hint: string, images: string[] } | null>}
+ */
+export async function getRememberedMediaContext(chatId) {
+  if (!chatId) return null;
+  const media = await mediaCache.get(chatId);
+  if (!media || typeof media.hint !== 'string' || !media.hint) return null;
+  return {
+    url: typeof media.url === 'string' ? media.url : '',
+    hint: media.hint,
+    images: Array.isArray(media.images) ? media.images : [],
+  };
 }
 
 /**
@@ -346,7 +384,7 @@ export async function buildChatPayload({
   if (mediaContext) {
     messages.push({
       role: 'system',
-      content: `[KONTEKS MEDIA]\n${mediaContext}\nGunakan konteks ini kalau user meminta skill yang membutuhkan media.`,
+      content: `[KONTEKS MEDIA]\n${mediaContext}\nIni yang kamu lihat di percakapan ini. Jawab pertanyaan user langsung dari isi media; jangan minta user mengirim ulang media yang sudah kamu lihat dan jangan panggil tool download untuk media itu.`,
     });
   }
 
