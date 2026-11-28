@@ -48,16 +48,16 @@ export default defineSkill({
       return 'Downloader media tidak tersedia di chat ini.';
     }
 
+    if (!args?.url && context?.mediaIngested && !context?.explicitDownload) {
+      return 'Media ini sudah kamu lihat; jawab pertanyaan user dari isi media tanpa mengirim ulang file. Kalau user benar-benar minta file, baru panggil tool ini lagi.';
+    }
+
     const url =
       extractUrl(args?.url) ||
       extractUrl(msg.body?.rawText || '') ||
       extractUrl(msg.quoted?.body?.rawText || '');
     if (!url) {
       return 'Link media tidak ditemukan. Minta user kirim link atau reply pesan yang berisi link.';
-    }
-
-    if (!args?.url && context?.mediaIngested && !context?.explicitDownload) {
-      return 'Media ini sudah kamu lihat; jawab pertanyaan user dari isi media tanpa mengirim ulang file. Kalau user benar-benar minta file, baru panggil tool ini lagi.';
     }
 
     const requestedType = String(args?.type || '').toLowerCase();
